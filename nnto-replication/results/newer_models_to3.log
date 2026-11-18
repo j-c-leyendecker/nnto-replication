@@ -1,0 +1,7 @@
+[1/4] SIREN 3x64 | converged + Sobolev                           s0: true 78.895 model 78.883 (-0.01 %) nit 990 conv True 208s [208s]
+[2/4] SIREN 3x64 | converged + Sobolev                           s1: true 78.834 model 78.805 (-0.04 %) nit 1089 conv True 226s [433s]
+[3/4] KAN 2-16-16-4 | converged + Sobolev                        s0: true 78.850 model 78.725 (-0.16 %) nit 1386 conv True 77s [510s]
+[4/4] KAN 2-16-16-4 | converged + Sobolev                        s1: true 78.839 model 78.850 (+0.01 %) nit 1340 conv True 73s [583s]
+summary (true compliance, mean ± 95% CI over trained seeds):
+  SIREN 3x64 | converged + Sobolev                           n=2 true 78.865 ± 0.386  model error -0.03 %
+  KAN 2-16-16-4 | converged + Sobolev                        n=2 true 78.844 ± 0.076  model error -0.07 %

@@ -1,0 +1,17 @@
+[1/12] Deep MLP 3x64 tanh | converged + Sobolev                   s0: true 78.947 model 78.968 (+0.03 %) nit 694 conv True 70s [70s]
+[2/12] Deep MLP 3x64 tanh | converged + Sobolev                   s1: true 78.835 model 78.835 (+0.00 %) nit 1148 conv True 116s [116s]
+[3/12] MLP 1x64 sigmoid (paper) | converged + Sobolev             s0: true 79.392 model 79.545 (+0.19 %) nit 759 conv True 15s [131s]
+[4/12] MLP 1x64 sigmoid (paper) | converged + Sobolev             s1: true 79.322 model 79.093 (-0.29 %) nit 1118 conv True 23s [154s]
+[5/12] MLP 1x64 sigmoid (paper) | converged + Sobolev             s2: true 79.202 model 79.270 (+0.09 %) nit 623 conv True 13s [167s]
+[6/12] Deep MLP 3x64 tanh | converged + Sobolev                   s2: true 78.845 model 78.783 (-0.08 %) nit 1014 conv True 101s [171s]
+[7/12] Deep MLP 3x64 tanh | paper data                            s0: true 79.066 model 78.986 (-0.10 %) nit 3000 conv False 300s [467s]
+[8/12] Deep MLP 3x64 tanh | paper data                            s1: true 79.199 model 78.975 (-0.28 %) nit 3000 conv False 300s [471s]
+[9/12] Deep MLP 3x64 tanh | paper data                            s2: true 79.456 model 79.446 (-0.01 %) nit 3000 conv False 295s [762s]
+[10/12] Deep MLP 3x64 tanh | converged, values only                s0: true 78.820 model 78.667 (-0.19 %) nit 3000 conv False 296s [767s]
+[11/12] Deep MLP 3x64 tanh | converged, values only                s1: true 78.853 model 78.724 (-0.16 %) nit 3000 conv False 292s [1054s]
+[12/12] Deep MLP 3x64 tanh | converged, values only                s2: true 78.913 model 78.682 (-0.29 %) nit 3000 conv False 294s [1061s]
+summary (true compliance, mean ± 95% CI over runs; model error = surrogate's own compliance vs truth):
+  Deep MLP 3x64 tanh | converged + Sobolev                   n=3 true 78.876 ± 0.154  model error: mean -0.02 %, mean |.| 0.04 %, max |.| 0.08 %  volume 0.50000-0.50000  true at target volume 78.876
+  MLP 1x64 sigmoid (paper) | converged + Sobolev             n=3 true 79.305 ± 0.239  model error: mean -0.00 %, mean |.| 0.19 %, max |.| 0.29 %  volume 0.50000-0.50000  true at target volume 79.305
+  Deep MLP 3x64 tanh | paper data                            n=3 true 79.240 ± 0.493  model error: mean -0.13 %, mean |.| 0.13 %, max |.| 0.28 %  volume 0.49992-0.50000  true at target volume 79.237
+  Deep MLP 3x64 tanh | converged, values only                n=3 true 78.862 ± 0.118  model error: mean -0.22 %, mean |.| 0.22 %, max |.| 0.29 %  volume 0.50000-0.50000  true at target volume 78.862

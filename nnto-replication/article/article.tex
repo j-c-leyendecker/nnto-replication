@@ -1,0 +1,18 @@
+\documentclass{rescience}
+% Added to the ReScience C template for this article: tables, figures and a
+% little space between paragraphs (the class sets no paragraph indentation).
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{placeins}   % \FloatBarrier keeps tables and figures within their section
+\setlength{\parskip}{0.45em plus 0.15em minus 0.05em}
+
+\begin{document}
+\input{header.tex}
+\input{content.tex}
+
+\hypersetup{linkcolor=black,urlcolor=darkgray}
+\renewcommand\emph[1]{{\bfseries #1}}
+\setlength\bibitemsep{0pt}
+\printbibliography
+
+\end{document}

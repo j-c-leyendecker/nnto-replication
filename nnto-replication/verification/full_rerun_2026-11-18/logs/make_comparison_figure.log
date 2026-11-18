@@ -1,0 +1,3 @@
+wrote /home/claude/work/nnto_improved/verification/full_rerun_2026-11-18/figures/fig5_older_vs_newer.png
+older (published): starting-design compliance 255.613 (true 280.187); sensitivity error (relative L2) 0.2215
+newer (deep + derivative labels, s0): starting-design compliance 283.065 (true 280.187); sensitivity error (relative L2) 0.0310

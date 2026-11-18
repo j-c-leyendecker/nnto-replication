@@ -1,0 +1,31 @@
+Final designs (seed 0 unperturbed + seeds 1-5 with 1e-10 gradient perturbation)
+config           n    true compliance mean ± 95% CI     min     max     iterations gtol stops
+CFD published    6       81.030 ±  0.571 (sd 0.544)    80.719  82.118   277.7 ±  36.1     4/6   low cluster (<81.4): 5/6
+CFD patched      6       81.201 ±  0.672 (sd 0.640)    80.766  82.076   283.5 ±  25.0     4/6   low cluster (<81.4): 4/6
+NNJ patched      6       81.603 ±  0.676 (sd 0.644)    80.771  82.088   264.7 ±  26.7     2/6   low cluster (<81.4): 2/6
+NNJ published    1       81.956 ±    nan (sd   nan)    81.956  81.956   276.0 ±   nan     0/1   low cluster (<81.4): 0/1
+CFD published vs CFD patched: mean difference -0.170, Welch p = 0.63, Mann-Whitney p = 0.48
+CFD published vs NNJ patched: mean difference -0.573, Welch p = 0.13, Mann-Whitney p = 0.24
+CFD patched vs NNJ patched: mean difference -0.402, Welch p = 0.30, Mann-Whitney p = 0.70
+
+Distance of the iterates from the exact-derivative run (max |theta - theta_NNJ|):
+iteration     CFD patched   CFD published   NNJ published
+        1        0.00e+00        0.00e+00        0.00e+00
+        2        1.11e-16        1.11e-16        0.00e+00
+        5        2.74e-11        4.44e-03        1.61e-08
+       10        1.34e-10        1.23e-02        6.18e-08
+       20        5.50e-10        4.71e-02        1.66e-07
+       30        5.43e-09        5.59e-02        1.17e-06
+       40        1.10e-08        7.10e-02        2.47e-06
+       60        1.11e-05        5.85e-02        1.40e-02
+      100        8.82e-02        1.52e-01        7.13e-02
+      150        2.88e-02        1.33e-01        3.04e-02
+      200        1.42e-02        5.84e-02        1.24e-02
+  CFD patched: first iteration where the design differs by > 1e-6: 59, by > 1e-3: 71
+  CFD published: first iteration where the design differs by > 1e-6: 3, by > 1e-3: 3
+  NNJ published: first iteration where the design differs by > 1e-6: 26, by > 1e-3: 58
+
+Max relative error of the network derivative along each run's own path (every 10th iterate):
+  CFD published  median 1.65e-02  range [1.33e-02, 1.65e-02]
+  CFD patched    median 2.48e-10  range [1.53e-11, 3.26e-10]
+  NNJ patched    median 0.00e+00  range [0.00e+00, 0.00e+00]

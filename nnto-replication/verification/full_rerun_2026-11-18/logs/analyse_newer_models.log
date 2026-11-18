@@ -1,0 +1,53 @@
+Surrogate accuracy on 300 off-grid points (relative RMSE; mean of 3 seeds; ensemble of the 3 in brackets)
+model                        training                           values   derivs, full  derivs, interior  not PD  params  fit s
+published model              paper data (as published)          0.0408         0.6417            0.1438   0.019     452
+MLP 1x64 sigmoid (paper)     paper data                         0.0211   1.6956 (1.685)   0.1081 (0.0684)   0.049     452     25
+Deep MLP 3x64 tanh           paper data                         0.0059   2.0846 (1.781)   0.0424 (0.0295)   0.036    8772     86
+ResNet 4x64 swish            paper data                         0.0075   1.3180 (0.595)   0.0369 (0.0245)   0.051   25412    268
+Fourier + 2x64 tanh          paper data                         0.0062   0.9272 (0.643)   0.2049 (0.1375)   0.032    6532     59
+SIREN 3x64                   paper data                         0.0083   2.9846 (2.951)   0.1270 (0.0852)   0.027    8772    171
+KAN 2-16-16-4                paper data                         0.0100   2.0421 (1.726)   0.2715 (0.1676)   0.043    2464     54
+MLP 1x64 sigmoid (paper)     converged, values only             0.0055   0.1548 (0.154)   0.0428 (0.0407)   0.044     452      5
+Deep MLP 3x64 tanh           converged, values only             0.0012   0.0526 (0.050)   0.0143 (0.0098)   0.027    8772     16
+ResNet 4x64 swish            converged, values only             0.0018   0.0474 (0.041)   0.0127 (0.0106)   0.032   25412     56
+Fourier + 2x64 tanh          converged, values only             0.0005   0.0315 (0.029)   0.0103 (0.0058)   0.015    6532     13
+SIREN 3x64                   converged, values only             0.0005   0.0284 (0.027)   0.0063 (0.0040)   0.015    8772     32
+KAN 2-16-16-4                converged, values only             0.0009   0.0401 (0.035)   0.0190 (0.0109)   0.020    2464     11
+MLP 1x64 sigmoid (paper)     converged + Sobolev                0.0040   0.0731 (0.068)   0.0459 (0.0402)   0.042     452     18
+Deep MLP 3x64 tanh           converged + Sobolev                0.0003   0.0051 (0.004)   0.0028 (0.0018)   0.021    8772     78
+ResNet 4x64 swish            converged + Sobolev                0.0005   0.0093 (0.008)   0.0042 (0.0031)   0.025   25412    262
+Fourier + 2x64 tanh          converged + Sobolev                0.0001   0.0069 (0.004)   0.0024 (0.0014)   0.013    6532     62
+SIREN 3x64                   converged + Sobolev                0.0002   0.0066 (0.006)   0.0036 (0.0023)   0.014    8772    147
+KAN 2-16-16-4                converged + Sobolev                0.0004   0.0123 (0.009)   0.0070 (0.0038)   0.023    2464     82
+Deep MLP 3x64 tanh           converged + Sobolev + Cholesky     0.0022   0.0084 (0.006)   0.0051 (0.0035)   0.000    8772     93
+KAN 2-16-16-4                converged + Sobolev + Cholesky     0.0044   0.0132 (0.009)   0.0074 (0.0045)   0.000    2464     90
+
+Microstructure optimisation (MMA, consistent formulation); compliance scored with the converged reference
+error = the surrogate's own compliance vs the truth: signed mean, and mean / max absolute value (signed errors of opposite sign cancel; fix 2026-11-18)
+surrogate                                                       n        true compliance  surrogate says    error  |error|  max|e|  iters volume (min)
+reference                                                       1       78.853                    78.853   +0.00%    0.00%   0.00%   1554      0.50000   perturbed repeats: 78.853, 78.853, 78.853
+published                                                       1       81.951                    77.879   -4.97%    4.97%   4.97%   3000      0.49850   perturbed repeats: 81.878, 82.048
+Deep MLP 3x64 tanh | converged + Sobolev                        3       78.876   ± 0.154          78.862   -0.02%    0.04%   0.08%    952      0.50000
+MLP 1x64 sigmoid (paper) | converged + Sobolev                  3       79.305   ± 0.239          79.303   -0.00%    0.19%   0.29%    833      0.50000
+Deep MLP 3x64 tanh | paper data                                 3       79.240   ± 0.493          79.136   -0.13%    0.13%   0.28%   3000      0.49992
+Deep MLP 3x64 tanh | converged, values only                     3       78.862   ± 0.118          78.691   -0.22%    0.22%   0.29%   3000      0.50000
+Fourier + 2x64 tanh | converged + Sobolev                       2       78.833   ± 0.001          78.820   -0.02%    0.02%   0.03%   1288      0.50000
+ResNet 4x64 swish | converged + Sobolev                         2       78.847   ± 0.022          78.844   -0.00%    0.06%   0.06%   1462      0.50000
+SIREN 3x64 | converged + Sobolev                                2       78.865   ± 0.386          78.844   -0.03%    0.03%   0.04%   1040      0.50000
+KAN 2-16-16-4 | converged + Sobolev                             2       78.844   ± 0.076          78.788   -0.07%    0.09%   0.16%   1363      0.50000
+Deep MLP 3x64 tanh | converged + Sobolev + Cholesky             2       78.850   ± 0.069          78.606   -0.31%    0.31%   0.43%   1682      0.50000
+KAN 2-16-16-4 | converged + Sobolev + Cholesky                  2       78.954   ± 1.254          78.600   -0.45%    0.45%   0.52%   1156      0.50000
+
+At equal material (both hole fields scaled to the exact volume target), from final_designs_rescored.json:
+  reference                                                    true 78.853 -> at target volume 78.853
+  published                                                    true 81.959 -> at target volume 81.869
+  Deep MLP 3x64 tanh | converged + Sobolev                     true 78.876 -> at target volume 78.876
+  MLP 1x64 sigmoid (paper) | converged + Sobolev               true 79.305 -> at target volume 79.305
+  Deep MLP 3x64 tanh | paper data                              true 79.240 -> at target volume 79.237
+  Deep MLP 3x64 tanh | converged, values only                  true 78.862 -> at target volume 78.862
+  Fourier + 2x64 tanh | converged + Sobolev                    true 78.833 -> at target volume 78.833
+  ResNet 4x64 swish | converged + Sobolev                      true 78.847 -> at target volume 78.847
+  SIREN 3x64 | converged + Sobolev                             true 78.865 -> at target volume 78.865
+  KAN 2-16-16-4 | converged + Sobolev                          true 78.844 -> at target volume 78.844
+  Deep MLP 3x64 tanh | converged + Sobolev + Cholesky          true 78.850 -> at target volume 78.850
+  KAN 2-16-16-4 | converged + Sobolev + Cholesky               true 78.954 -> at target volume 78.954

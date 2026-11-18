@@ -1,0 +1,9 @@
+Sobolev positive surrogate: {'sobolev_net_fn_rmse': 3.798287844910785e-05, 'sobolev_net_d_rmse': 0.0005042165384867614, 'sobolev_net_min_E': 2.857291840203619e-05, 'sobolev_net_min_dE': 0.0013225946310758496}
+[1/19] NNJ+1e-10                          seed 3: comp=82.080 true=82.003 nit=251 grey=0.286 (`xtol` termination conditi) 114s
+[2/19] NNJ+1e-10                          seed 4: comp=80.856 true=80.777 nit=290 grey=0.268 (`gtol` termination conditi) 245s
+[3/19] NNJ+1e-10                          seed 5: comp=81.995 true=81.918 nit=283 grey=0.285 (`xtol` termination conditi) 330s
+[4/19] NNJ+1e-10                          seed 6: comp=82.105 true=82.027 nit=310 grey=0.286 (`gtol` termination conditi) 415s
+[5/19] SIMP+1e-10                         seed 1: comp=80.716 true=80.716 nit=295 grey=0.267 (`xtol` termination conditi) 613s
+[6/19] SIMP+1e-10                         seed 2: comp=81.914 true=81.914 nit=285 grey=0.285 (`xtol` termination conditi) 772s
+[7/19] SIMP+1e-10                         seed 3: comp=80.772 true=80.772 nit=260 grey=0.268 (`gtol` termination conditi) 887s
+[8/19] SIMP+1e-10                         seed 4: comp=82.086 true=82.086 nit=253 grey=0.286 (`xtol` termination conditi) 956s

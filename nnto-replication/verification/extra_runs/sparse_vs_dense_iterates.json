@@ -1,0 +1,26 @@
+{
+ "30x15": {
+  "iterations": 25,
+  "max_abs_design_difference": 1.1760151186201995e-10,
+  "compliance_dense": 130.2488603665526,
+  "compliance_sparse": 130.24886036478844,
+  "seconds_dense": 8.255859613418579,
+  "seconds_sparse": 0.8173568248748779,
+  "nit": [
+   25,
+   25
+  ]
+ },
+ "60x30": {
+  "iterations": 10,
+  "max_abs_design_difference": 2.1437296382487148e-12,
+  "compliance_dense": 183.4372556990378,
+  "compliance_sparse": 183.43725569887314,
+  "seconds_dense": 126.69617915153503,
+  "seconds_sparse": 1.1554784774780273,
+  "nit": [
+   10,
+   10
+  ]
+ }
+}

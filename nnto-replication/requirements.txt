@@ -1,0 +1,6 @@
+# Runtime and test dependencies of the nnto package (no TensorFlow needed).
+# Tested with Python 3.13.18, NumPy 2.5.3, SciPy 1.18.1, Matplotlib 3.11.2, pytest 9.1.1.
+numpy
+scipy
+matplotlib
+pytest

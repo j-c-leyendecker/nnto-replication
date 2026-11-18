@@ -1,0 +1,108 @@
+{
+ "paper_table2_seconds": {
+  "DBTO": {
+   "NNJ": 2.741,
+   "CFD": 0.342,
+   "CSM": 0.088,
+   "AD": 2.568
+  },
+  "HBTO": {
+   "NNJ": 2.988,
+   "CFD": 0.682,
+   "CSM": 0.18,
+   "AD": 8.553
+  }
+ },
+ "derivatives_N1800": {
+  "DBTO": {
+   "original NNJ": 0.14088970799639355,
+   "original CFD": 0.002081500002532266,
+   "original CSM": 0.11149545799707994,
+   "original AD": 1.1202895830065245,
+   "vectorised NNJ": 0.0017065830033970997,
+   "vectorised CFD": 0.0017295410070801154,
+   "vectorised CSM": 0.009916958006215282,
+   "vectorised AD-fwd": 0.001031958992825821,
+   "vectorised AD-rev": 0.0010761250014184043
+  },
+  "HBTO": {
+   "original NNJ": 0.16069016700203065,
+   "original CFD": 0.0038507090066559613,
+   "original CSM": 0.2265262909932062,
+   "original AD": 5.9060071669955505,
+   "vectorised NNJ": 0.011069082989706658,
+   "vectorised CFD": 0.004056082994793542,
+   "vectorised CSM": 0.05985537500237115,
+   "vectorised AD-fwd": 0.002383166996878572,
+   "vectorised AD-rev": 0.002037707992712967
+  }
+ },
+ "ad_memory_bytes": {
+  "DBTO": {
+   "cross_batch_jacobian": 25920000,
+   "batch_jacobian": 14400
+  },
+  "HBTO": {
+   "cross_batch_jacobian": 207360000,
+   "batch_jacobian": 115200
+  }
+ },
+ "objective_plus_gradient_seconds": {
+  "original": 2.4136052079993533,
+  "vectorised": 0.014195166993886232
+ },
+ "trust_constr_seconds_per_iteration": {
+  "30x15": {
+   "dense": 89.94458044787643,
+   "sparse": 4.244082422900101,
+   "speedup": 21.19293912921106
+  },
+  "40x20": {
+   "dense": 193.69546531249944,
+   "sparse": 3.2626815228999475,
+   "speedup": 59.36695443701731
+  },
+  "60x30": {
+   "dense": 538.2050309723321,
+   "sparse": 3.0860056207995514,
+   "speedup": 174.40183107407591
+  }
+ },
+ "scalar_gradient_vs_input_dim": {
+  "1": {
+   "reverse (1 VJP)": 0.06291133299237117,
+   "forward (xdim JVPs)": 0.00044183299178257585,
+   "NNJ (full Jacobian)": 0.0008235419954871759,
+   "CFD (2 xdim evals)": 0.1237927500042133,
+   "CSM (xdim evals)": 0.15662774999509566
+  },
+  "4": {
+   "reverse (1 VJP)": 0.0011793750018114224,
+   "forward (xdim JVPs)": 0.004514375003054738,
+   "NNJ (full Jacobian)": 0.03149291600857396,
+   "CFD (2 xdim evals)": 0.3290631670097355,
+   "CSM (xdim evals)": 0.6809118749952177
+  },
+  "16": {
+   "reverse (1 VJP)": 0.0007901249919086695,
+   "forward (xdim JVPs)": 0.755468249990372,
+   "NNJ (full Jacobian)": 0.14409220799279865,
+   "CFD (2 xdim evals)": 1.0365064999932656,
+   "CSM (xdim evals)": 3.7510604999988573
+  },
+  "64": {
+   "reverse (1 VJP)": 0.19236845900013577,
+   "forward (xdim JVPs)": 1.6305005000031088,
+   "NNJ (full Jacobian)": 0.7490701250062557,
+   "CFD (2 xdim evals)": 5.716435291993548,
+   "CSM (xdim evals)": 19.898504666998633
+  },
+  "256": {
+   "reverse (1 VJP)": 0.05568533399491571,
+   "forward (xdim JVPs)": 100.71473654100555,
+   "NNJ (full Jacobian)": 8.99457408300077,
+   "CFD (2 xdim evals)": 95.20525116700446,
+   "CSM (xdim evals)": 75.45792204199824
+  }
+ }
+}

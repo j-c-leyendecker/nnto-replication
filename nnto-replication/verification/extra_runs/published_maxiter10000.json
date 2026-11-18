@@ -1,0 +1,53 @@
+[
+ {
+  "label": "published",
+  "seed": 0,
+  "noise": 0.0,
+  "path": "UPSTREAM/NN_model_HBTO_1e+04",
+  "compliance_model": 77.07676772298268,
+  "compliance_true": 80.51528074952294,
+  "model_error_pct": -4.270634088996372,
+  "nit": 10000,
+  "converged": false,
+  "volume_fraction": 0.4999182255657487,
+  "volume_violation": -8.17744342512805e-05,
+  "compliance_true_at_target_volume": 80.50773452734546,
+  "volume_projection_scale": 0.9999182348494142,
+  "maxiter": 10000,
+  "seconds": 212.73977851867676
+ },
+ {
+  "label": "published",
+  "seed": 1,
+  "noise": 1e-10,
+  "path": "UPSTREAM/NN_model_HBTO_1e+04",
+  "compliance_model": 77.19251966582227,
+  "compliance_true": 80.61538114835702,
+  "model_error_pct": -4.245916143763717,
+  "nit": 10000,
+  "converged": false,
+  "volume_fraction": 0.49932613046293295,
+  "volume_violation": -0.0006738695370670511,
+  "compliance_true_at_target_volume": 80.55200970568812,
+  "volume_projection_scale": 0.9993268108490532,
+  "maxiter": 10000,
+  "seconds": 214.38751363754272
+ },
+ {
+  "label": "published",
+  "seed": 2,
+  "noise": 1e-10,
+  "path": "UPSTREAM/NN_model_HBTO_1e+04",
+  "compliance_model": 77.06125215810104,
+  "compliance_true": 80.49513693035716,
+  "model_error_pct": -4.2659530789133875,
+  "nit": 10000,
+  "converged": false,
+  "volume_fraction": 0.4999242383604007,
+  "volume_violation": -7.576163959932547e-05,
+  "compliance_true_at_target_volume": 80.48814123793917,
+  "volume_projection_scale": 0.9999242464500369,
+  "maxiter": 10000,
+  "seconds": 205.23188471794128
+ }
+]

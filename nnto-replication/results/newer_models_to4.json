@@ -1,0 +1,54 @@
+[
+ {
+  "label": "Deep MLP 3x64 tanh | converged + Sobolev + Cholesky",
+  "seed": 0,
+  "noise": 0.0,
+  "path": "models/new_deep_mlp_3x64_tanh__converged___sobolev___cholesky__s0.npz",
+  "compliance_model": 78.69850153842336,
+  "compliance_true": 78.84503471169067,
+  "model_error_pct": -0.18584958939156238,
+  "nit": 1541,
+  "converged": true,
+  "volume_fraction": 0.4999999933895284,
+  "seconds": 152.73350954055786
+ },
+ {
+  "label": "Deep MLP 3x64 tanh | converged + Sobolev + Cholesky",
+  "seed": 1,
+  "noise": 0.0,
+  "path": "models/new_deep_mlp_3x64_tanh__converged___sobolev___cholesky__s1.npz",
+  "compliance_model": 78.51338830755881,
+  "compliance_true": 78.85585684189257,
+  "model_error_pct": -0.43429689061703636,
+  "nit": 1823,
+  "converged": true,
+  "volume_fraction": 0.4999999985576824,
+  "seconds": 177.33929586410522
+ },
+ {
+  "label": "KAN 2-16-16-4 | converged + Sobolev + Cholesky",
+  "seed": 0,
+  "noise": 0.0,
+  "path": "models/new_kan_2_16_16_4__converged___sobolev___cholesky__s0.npz",
+  "compliance_model": 78.7534764492483,
+  "compliance_true": 79.05289827153541,
+  "model_error_pct": -0.37876134693840546,
+  "nit": 892,
+  "converged": true,
+  "volume_fraction": 0.4999999985428375,
+  "seconds": 33.78427195549011
+ },
+ {
+  "label": "KAN 2-16-16-4 | converged + Sobolev + Cholesky",
+  "seed": 1,
+  "noise": 0.0,
+  "path": "models/new_kan_2_16_16_4__converged___sobolev___cholesky__s1.npz",
+  "compliance_model": 78.44598963818203,
+  "compliance_true": 78.85553779081971,
+  "model_error_pct": -0.5193651125988019,
+  "nit": 1421,
+  "converged": true,
+  "volume_fraction": 0.4999999948300359,
+  "seconds": 51.78799104690552
+ }
+]

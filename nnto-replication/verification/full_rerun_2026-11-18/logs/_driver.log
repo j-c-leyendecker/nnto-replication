@@ -1,0 +1,45 @@
+19:06:45 start gt_voxel_lattice
+19:06:45 start gt_fitted_grid
+19:16:51 end   gt_voxel_lattice rc=0 606s
+19:16:51 start gt_offgrid
+19:20:23 end   gt_offgrid rc=0 212s
+19:20:23 start exp_precision
+19:20:25 end   exp_precision rc=0 2s
+19:20:25 start exp_higher_order
+19:20:26 end   exp_higher_order rc=0 1s
+19:20:26 start exp_architectures
+19:22:14 end   gt_fitted_grid rc=0 929s
+19:22:14 start exp_surrogate_truth
+19:22:18 end   exp_surrogate_truth rc=0 4s
+19:22:18 start exp_hbto_surrogates
+19:23:52 end   exp_architectures rc=0 206s
+19:23:52 start exp_audit_extras
+19:23:53 end   exp_audit_extras rc=0 1s
+19:23:53 start exp_efficiency
+19:25:10 end   exp_efficiency rc=0 77s
+19:28:20 end   exp_hbto_surrogates rc=0 362s
+19:28:20 start exp_newer_models
+19:28:20 start exp_published_long
+19:44:27 end   exp_published_long rc=0 967s
+20:09:28 end   exp_newer_models rc=0 2468s
+20:09:28 start to_baselines
+20:12:28 end   to_baselines rc=0 180s
+20:12:28 start newer_models_to
+20:30:10 end   newer_models_to rc=0 1062s
+20:30:10 start newer_models_to2
+20:39:17 end   newer_models_to2 rc=0 547s
+20:39:17 start newer_models_to3
+20:42:05 end   newer_models_to3 rc=0 168s
+20:42:05 start newer_models_to4
+20:46:28 end   newer_models_to4 rc=0 263s
+20:46:28 start exp_patch_check
+21:05:32 end   exp_patch_check rc=0 1144s
+21:05:32 start analyse_patch_check
+21:05:33 end   analyse_patch_check rc=0 1s
+21:05:33 start rescore_final_designs
+21:05:34 end   rescore_final_designs rc=0 1s
+21:05:34 start analyse_newer_models
+21:05:35 end   analyse_newer_models rc=0 1s
+21:05:35 start make_comparison_figure
+21:05:37 end   make_comparison_figure rc=0 2s
+21:05:37 STAGES A-E,G DONE

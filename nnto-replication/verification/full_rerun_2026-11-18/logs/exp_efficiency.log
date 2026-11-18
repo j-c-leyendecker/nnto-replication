@@ -1,0 +1,12 @@
+trust-constr 30x15: dense 0.244 s/it, sparse 0.024 s/it, x10
+trust-constr 40x20: dense 1.174 s/it, sparse 0.053 s/it, x22
+trust-constr 60x30: dense 15.938 s/it, sparse 0.143 s/it, x111
+DBTO {'original NNJ': '35.58 ms', 'original CFD': '2.01 ms', 'original CSM': '26.90 ms', 'original AD': '611.08 ms', 'vectorised NNJ': '1.98 ms', 'vectorised CFD': '1.96 ms', 'vectorised CSM': '2.83 ms', 'vectorised AD-fwd': '1.30 ms', 'vectorised AD-rev': '1.57 ms'}
+HBTO {'original NNJ': '39.30 ms', 'original CFD': '3.84 ms', 'original CSM': '56.25 ms', 'original AD': '1987.07 ms', 'vectorised NNJ': '6.00 ms', 'vectorised CFD': '3.50 ms', 'vectorised CSM': '5.66 ms', 'vectorised AD-fwd': '2.27 ms', 'vectorised AD-rev': '2.40 ms'}
+AD memory: {'DBTO': {'cross_batch_jacobian': 25920000, 'batch_jacobian': 14400}, 'HBTO': {'cross_batch_jacobian': 207360000, 'batch_jacobian': 115200}}
+objective+gradient: {'original': 0.7718217750000349, 'vectorised': 0.01143619899994519}
+xdim 1 {'reverse (1 VJP)': '0.3 ms', 'forward (xdim JVPs)': '0.3 ms', 'NNJ (full Jacobian)': '0.6 ms', 'CFD (2 xdim evals)': '0.3 ms', 'CSM (xdim evals)': '1.1 ms'}
+xdim 4 {'reverse (1 VJP)': '0.3 ms', 'forward (xdim JVPs)': '0.9 ms', 'NNJ (full Jacobian)': '9.7 ms', 'CFD (2 xdim evals)': '1.0 ms', 'CSM (xdim evals)': '5.1 ms'}
+xdim 16 {'reverse (1 VJP)': '0.3 ms', 'forward (xdim JVPs)': '3.4 ms', 'NNJ (full Jacobian)': '21.7 ms', 'CFD (2 xdim evals)': '4.4 ms', 'CSM (xdim evals)': '21.3 ms'}
+xdim 64 {'reverse (1 VJP)': '0.4 ms', 'forward (xdim JVPs)': '17.4 ms', 'NNJ (full Jacobian)': '127.2 ms', 'CFD (2 xdim evals)': '21.0 ms', 'CSM (xdim evals)': '93.5 ms'}
+xdim 256 {'reverse (1 VJP)': '0.7 ms', 'forward (xdim JVPs)': '154.7 ms', 'NNJ (full Jacobian)': '1082.8 ms', 'CFD (2 xdim evals)': '173.3 ms', 'CSM (xdim evals)': '475.1 ms'}

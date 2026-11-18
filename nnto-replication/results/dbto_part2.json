@@ -1,0 +1,122 @@
+{
+ "info": {
+  "sobolev_net_fn_rmse": 3.798287844910785e-05,
+  "sobolev_net_d_rmse": 0.0005042165384867614,
+  "sobolev_net_min_E": 2.857291840203619e-05,
+  "sobolev_net_min_dE": 0.0013225946310758496
+ },
+ "runs": [
+  {
+   "label": "NNJ+1e-10",
+   "noise": 1e-10,
+   "seed": 3,
+   "comp": 82.0796174188408,
+   "comp_true": 82.00253646080677,
+   "nit": 251,
+   "message": "`xtol` termination condition is satisfied.",
+   "optimality": 0.0013106362771685542,
+   "time": 95.08196759223938,
+   "grey": 0.2862467498331178,
+   "volume": 0.5000000000000001,
+   "frac_below_clip": 0.3377777777777778
+  },
+  {
+   "label": "NNJ+1e-10",
+   "noise": 1e-10,
+   "seed": 4,
+   "comp": 80.85584534782394,
+   "comp_true": 80.77721778040325,
+   "nit": 290,
+   "message": "`gtol` termination condition is satisfied.",
+   "optimality": 0.0008302142007607484,
+   "time": 130.80914306640625,
+   "grey": 0.2679853065518156,
+   "volume": 0.4999999999999999,
+   "frac_below_clip": 0.33444444444444443
+  },
+  {
+   "label": "NNJ+1e-10",
+   "noise": 1e-10,
+   "seed": 5,
+   "comp": 81.99462813330045,
+   "comp_true": 81.9178436233477,
+   "nit": 283,
+   "message": "`xtol` termination condition is satisfied.",
+   "optimality": 0.001375034260346509,
+   "time": 84.71651005744934,
+   "grey": 0.2853652636544803,
+   "volume": 0.5,
+   "frac_below_clip": 0.33611111111111114
+  },
+  {
+   "label": "NNJ+1e-10",
+   "noise": 1e-10,
+   "seed": 6,
+   "comp": 82.1048397263275,
+   "comp_true": 82.0272376965855,
+   "nit": 310,
+   "message": "`gtol` termination condition is satisfied.",
+   "optimality": 0.0007593810548001626,
+   "time": 84.91803479194641,
+   "grey": 0.2864720405663359,
+   "volume": 0.5000000000000002,
+   "frac_below_clip": 0.3338888888888889
+  },
+  {
+   "label": "SIMP+1e-10",
+   "noise": 1e-10,
+   "seed": 1,
+   "comp": 80.7158761557558,
+   "comp_true": 80.7158761557558,
+   "nit": 295,
+   "message": "`xtol` termination condition is satisfied.",
+   "optimality": 0.001079724734785797,
+   "time": 197.80855655670166,
+   "grey": 0.26719389529283555,
+   "volume": 0.5,
+   "frac_below_clip": 0.3388888888888889
+  },
+  {
+   "label": "SIMP+1e-10",
+   "noise": 1e-10,
+   "seed": 2,
+   "comp": 81.91415367231545,
+   "comp_true": 81.91415367231545,
+   "nit": 285,
+   "message": "`xtol` termination condition is satisfied.",
+   "optimality": 0.0013114682840870643,
+   "time": 158.96958899497986,
+   "grey": 0.2852032193085285,
+   "volume": 0.4999999999999999,
+   "frac_below_clip": 0.34055555555555556
+  },
+  {
+   "label": "SIMP+1e-10",
+   "noise": 1e-10,
+   "seed": 3,
+   "comp": 80.77171668875357,
+   "comp_true": 80.77171668875357,
+   "nit": 260,
+   "message": "`gtol` termination condition is satisfied.",
+   "optimality": 0.0009896507371249565,
+   "time": 114.8635356426239,
+   "grey": 0.26843243067798345,
+   "volume": 0.49999999999999994,
+   "frac_below_clip": 0.3383333333333333
+  },
+  {
+   "label": "SIMP+1e-10",
+   "noise": 1e-10,
+   "seed": 4,
+   "comp": 82.08561918945539,
+   "comp_true": 82.08561918945539,
+   "nit": 253,
+   "message": "`xtol` termination condition is satisfied.",
+   "optimality": 0.001721392125331303,
+   "time": 69.44370007514954,
+   "grey": 0.2860842579133204,
+   "volume": 0.5,
+   "frac_below_clip": 0.33611111111111114
+  }
+ ]
+}

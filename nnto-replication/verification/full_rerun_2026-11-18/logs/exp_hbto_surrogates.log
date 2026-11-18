@@ -1,0 +1,12 @@
+Sobolev + Cholesky (2x64 tanh)     test: fn rel-rmse 0.0023  d rel-rmse 0.0139 | interior: fn 0.0024 d 0.0070 | not PD 0.0000  (45s)
+values only (1x64 sigmoid)         test: fn rel-rmse 0.0059  d rel-rmse 0.1848 | interior: fn 0.0043 d 0.0422 | not PD 0.0669  (5s)
+Sobolev (1x64 sigmoid)             test: fn rel-rmse 0.0041  d rel-rmse 0.0826 | interior: fn 0.0039 d 0.0650 | not PD 0.0414  (17s)
+values only (2x64 tanh)            test: fn rel-rmse 0.0017  d rel-rmse 0.0933 | interior: fn 0.0012 d 0.0186 | not PD 0.0442  (9s)
+Sobolev (2x64 tanh)                test: fn rel-rmse 0.0006  d rel-rmse 0.0178 | interior: fn 0.0006 d 0.0089 | not PD 0.0444  (38s)
+ensemble member 0: test MSE vs published labels 2.624e-04  (23s)
+ensemble member 1: test MSE vs published labels 3.314e-04  (22s)
+ensemble member 2: test MSE vs published labels 4.124e-04  (22s)
+ensemble member 3: test MSE vs published labels 3.508e-04  (22s)
+ensemble member 4: test MSE vs published labels 3.772e-04  (23s)
+published model vs truth: all fn 0.0541 d 0.7806 | interior fn 0.0162 d 0.1518 | not PD 0.0308
+ensemble: {'test_mse_members': [0.00026236356116099684, 0.00033136553275841754, 0.00041238285973641263, 0.0003508025954401391, 0.00037718825737633165], 'test_mse_published_model': 0.0014677666788773293, 'spearman_std_vs_error_function': 0.4294066727351729, 'spearman_std_vs_error_derivative': 0.599554186439388, 'mean_derivative_std_interior': 0.03870793164724842, 'mean_derivative_std_edge': 0.1771777500439116, 'mean_derivative_err_interior': 0.020935895477411055, 'mean_derivative_err_edge': 1.087893716606711, 'coverage_2sigma_function': 0.8645713187235678, 'coverage_2sigma_derivative': 0.8959534794309881}

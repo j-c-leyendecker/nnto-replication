@@ -1,0 +1,20 @@
+[1/19] CFD patched    seed 0: comp 80.883 true 80.804 nit 269 (`gtol) 118s
+[2/19] CFD published  seed 0: comp 80.863 true 80.784 nit 281 (`gtol) 131s
+[3/19] NNJ published  seed 0: comp 82.033 true 81.956 nit 276 (`xtol) 230s
+[4/19] NNJ patched    seed 0: comp 80.850 true 80.771 nit 269 (`gtol) 240s
+[5/19] CFD published  seed 1: comp 81.108 true 81.028 nit 252 (`xtol) 331s
+[6/19] CFD patched    seed 1: comp 80.861 true 80.783 nit 295 (`gtol) 354s
+[7/19] NNJ patched    seed 1: comp 82.053 true 81.976 nit 271 (`xtol) 430s
+[8/19] CFD published  seed 2: comp 80.845 true 80.766 nit 276 (`gtol) 471s
+[9/19] CFD patched    seed 2: comp 82.053 true 81.976 nit 314 (`xtol) 535s
+[10/19] NNJ patched    seed 2: comp 80.856 true 80.778 nit 273 (`gtol) 591s
+[11/19] CFD published  seed 3: comp 80.797 true 80.719 nit 291 (`gtol) 659s
+[12/19] CFD patched    seed 3: comp 80.878 true 80.799 nit 296 (`gtol) 702s
+[13/19] NNJ patched    seed 3: comp 82.139 true 82.061 nit 237 (`xtol) 749s
+[14/19] CFD published  seed 4: comp 80.845 true 80.766 nit 333 (`gtol) 838s
+[15/19] CFD patched    seed 4: comp 82.153 true 82.076 nit 246 (`xtol) 840s
+[16/19] CFD published  seed 5: comp 82.195 true 82.118 nit 233 (`xtol) 925s
+[17/19] NNJ patched    seed 4: comp 82.020 true 81.944 nit 303 (`xtol) 938s
+[18/19] NNJ patched    seed 5: comp 82.166 true 82.088 nit 235 (`xtol) 1034s
+[19/19] CFD patched    seed 5: comp 80.845 true 80.766 nit 281 (`gtol) 1046s
+done in 1046 s

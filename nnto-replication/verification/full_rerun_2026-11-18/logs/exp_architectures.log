@@ -1,0 +1,18 @@
+1x64 sigmoid (paper) | values only               fn 4.7e-05 d1 1.8e-03 d2 5.6e-02 E<Emin 0.000 dE<0 0.032 CSM 7e-16 AD 5e-16 CFD 2e-10 (2s)
+1x64 sigmoid (paper) | Sobolev                   fn 1.1e-05 d1 2.2e-04 d2 8.3e-03 E<Emin 0.021 dE<0 0.012 CSM 6e-16 AD 5e-16 CFD 2e-10 (3s)
+1x64 relu | values only                          fn 1.3e-04 d1 3.1e-02 d2 3.5e+00 E<Emin 0.018 dE<0 0.000 CSM 3e-16 AD 2e-16 CFD 7e-03 (2s)
+1x64 relu | Sobolev                              fn 2.3e-03 d1 8.8e-02 d2 3.5e+00 E<Emin 0.068 dE<0 0.000 CSM 2e-16 AD 2e-16 CFD 1e-05 (1s)
+3x32 tanh | values only                          fn 3.2e-05 d1 1.4e-03 d2 5.8e-02 E<Emin 0.010 dE<0 0.027 CSM 6e-16 AD 5e-16 CFD 9e-11 (3s)
+3x32 tanh | Sobolev                              fn 6.3e-06 d1 1.7e-04 d2 8.9e-03 E<Emin 0.019 dE<0 0.011 CSM 7e-16 AD 6e-16 CFD 1e-10 (3s)
+3x32 swish residual | values only                fn 6.1e-05 d1 2.1e-03 d2 5.3e-02 E<Emin 0.000 dE<0 0.037 CSM 8e-16 AD 6e-16 CFD 1e-10 (6s)
+3x32 swish residual | Sobolev                    fn 1.7e-05 d1 3.3e-04 d2 1.1e-02 E<Emin 0.026 dE<0 0.015 CSM 1e-15 AD 1e-15 CFD 2e-10 (6s)
+fourier(8) + 2x32 tanh | values only             fn 3.6e-05 d1 6.2e-03 d2 1.0e+00 E<Emin 0.015 dE<0 0.017 CSM 8e-16 AD 7e-16 CFD 1e-10 (2s)
+fourier(8) + 2x32 tanh | Sobolev                 fn 1.4e-06 d1 1.8e-04 d2 4.3e-02 E<Emin 0.009 dE<0 0.006 CSM 9e-16 AD 8e-16 CFD 8e-11 (7s)
+1x64 sigmoid + positive head | values only       fn 1.2e-04 d1 3.5e-03 d2 1.4e-01 E<Emin 0.000 dE<0 0.000 CSM 2e-15 AD 7e-16 CFD 5e-10 (1s)
+1x64 sigmoid + positive head | Sobolev           fn 1.8e-05 d1 2.7e-04 d2 1.2e-02 E<Emin 0.000 dE<0 0.000 CSM 3e-15 AD 7e-16 CFD 4e-10 (7s)
+N_train=70 | values only                         fn 1.3e-04 d1 4.1e-03 d2 1.0e-01 E<Emin 0.000 dE<0 0.046
+N_train=70 | Sobolev                             fn 5.3e-06 d1 1.4e-04 d2 6.0e-03 E<Emin 0.016 dE<0 0.010
+N_train=700 | values only                        fn 1.5e-04 d1 5.5e-03 d2 1.7e-01 E<Emin 0.000 dE<0 0.051
+N_train=700 | Sobolev                            fn 9.9e-06 d1 2.5e-04 d2 9.9e-03 E<Emin 0.025 dE<0 0.014
+N_train=7000 | values only                       fn 1.1e-04 d1 3.7e-03 d2 9.3e-02 E<Emin 0.000 dE<0 0.043
+N_train=7000 | Sobolev                           fn 5.5e-06 d1 1.4e-04 d2 6.4e-03 E<Emin 0.020 dE<0 0.011

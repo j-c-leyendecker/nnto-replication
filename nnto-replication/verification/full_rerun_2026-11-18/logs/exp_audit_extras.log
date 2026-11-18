@@ -1,0 +1,17 @@
+DBTO
+   NNJ {'frac_in_clipped_region': 0.33944, 'frac_wrong_sign_region': 0.28889, 'cos_filtered_vs_raw': 0.86319, 'cos_unmasked_vs_true_gradient': 0.99999, 'rel_norm_spurious_part': 0.00482, 'directional_fd_vs_true': 0.34083, 'directional_fd_vs_supplied': 7.21509}
+   CFD {'frac_in_clipped_region': 0.33556, 'frac_wrong_sign_region': 0.29167, 'cos_filtered_vs_raw': 0.86379, 'cos_unmasked_vs_true_gradient': 0.99999, 'rel_norm_spurious_part': 0.00403, 'directional_fd_vs_true': 0.07866, 'directional_fd_vs_supplied': 4.26234}
+   CSM {'frac_in_clipped_region': 0.33444, 'frac_wrong_sign_region': 0.27944, 'cos_filtered_vs_raw': 0.86283, 'cos_unmasked_vs_true_gradient': 0.99998, 'rel_norm_spurious_part': 0.00591, 'directional_fd_vs_true': 0.05935, 'directional_fd_vs_supplied': 4.7714}
+   AD {'frac_in_clipped_region': 0.33889, 'frac_wrong_sign_region': 0.29222, 'cos_filtered_vs_raw': 0.86374, 'cos_unmasked_vs_true_gradient': 0.99999, 'rel_norm_spurious_part': 0.00397, 'directional_fd_vs_true': 0.11145, 'directional_fd_vs_supplied': 4.13307}
+HBTO
+   NNJ {'cos_filtered_vs_raw': 0.21188, 'max_abs_filtered_over_max_abs_raw': 12.28833, 'frac_vars_below_0p001': 0.17472}
+   CFD {'cos_filtered_vs_raw': 0.17446, 'max_abs_filtered_over_max_abs_raw': 6.39005, 'frac_vars_below_0p001': 0.19722}
+   CSM {'cos_filtered_vs_raw': 0.17677, 'max_abs_filtered_over_max_abs_raw': 7.46611, 'frac_vars_below_0p001': 0.17444}
+   AD {'cos_filtered_vs_raw': 0.17333, 'max_abs_filtered_over_max_abs_raw': 6.12226, 'frac_vars_below_0p001': 0.16667}
+fig11_theta_mse
+   CFD vs NNJ {'printed': 0.0409, 'from_saved': 0.03858, 'from_saved_thresholded': 0.04089}
+   CSM vs NNJ {'printed': 0.00369, 'from_saved': 0.00334, 'from_saved_thresholded': 0.00369}
+   AD vs NNJ {'printed': 0.00323, 'from_saved': 0.00293, 'from_saved_thresholded': 0.00323}
+   CSM vs CFD {'printed': 0.0412, 'from_saved': 0.03889, 'from_saved_thresholded': 0.04124}
+   AD vs CFD {'printed': 0.0378, 'from_saved': 0.03574, 'from_saved_thresholded': 0.03783}
+   AD vs CSM {'printed': 0.00364, 'from_saved': 0.00332, 'from_saved_thresholded': 0.00364}

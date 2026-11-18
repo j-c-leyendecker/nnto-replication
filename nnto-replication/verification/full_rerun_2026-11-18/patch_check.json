@@ -1,0 +1,211 @@
+[
+ {
+  "name": "CFD published",
+  "noise": 0.0,
+  "seed": 0,
+  "comp": 80.8631178429812,
+  "comp_true": 80.78386608541766,
+  "nit": 281,
+  "message": "`gtol` termination condition is satisfied.",
+  "optimality": 0.0009225978382194685,
+  "time": 145.76164984703064
+ },
+ {
+  "name": "CFD patched",
+  "noise": 0.0,
+  "seed": 0,
+  "comp": 80.88279198850498,
+  "comp_true": 80.80417359916368,
+  "nit": 269,
+  "message": "`gtol` termination condition is satisfied.",
+  "optimality": 0.0009759217365543169,
+  "time": 150.96959948539734
+ },
+ {
+  "name": "NNJ published",
+  "noise": 0.0,
+  "seed": 0,
+  "comp": 82.03250550432791,
+  "comp_true": 81.9558044037401,
+  "nit": 276,
+  "message": "`xtol` termination condition is satisfied.",
+  "optimality": 0.0012975597252481083,
+  "time": 112.4095778465271
+ },
+ {
+  "name": "NNJ patched",
+  "noise": 0.0,
+  "seed": 0,
+  "comp": 80.84965714839785,
+  "comp_true": 80.77093224876992,
+  "nit": 269,
+  "message": "`gtol` termination condition is satisfied.",
+  "optimality": 0.0009884976244924504,
+  "time": 124.97277402877808
+ },
+ {
+  "name": "CFD published",
+  "noise": 1e-10,
+  "seed": 1,
+  "comp": 81.10801228052354,
+  "comp_true": 81.02813122216949,
+  "nit": 252,
+  "message": "`xtol` termination condition is satisfied.",
+  "optimality": 0.001825174861212371,
+  "time": 111.98468017578125
+ },
+ {
+  "name": "CFD patched",
+  "noise": 1e-10,
+  "seed": 1,
+  "comp": 80.86134020789365,
+  "comp_true": 80.78251849914037,
+  "nit": 295,
+  "message": "`gtol` termination condition is satisfied.",
+  "optimality": 0.0009970080548781183,
+  "time": 121.94184637069702
+ },
+ {
+  "name": "NNJ patched",
+  "noise": 1e-10,
+  "seed": 1,
+  "comp": 82.05262938354849,
+  "comp_true": 81.97557531550498,
+  "nit": 271,
+  "message": "`xtol` termination condition is satisfied.",
+  "optimality": 0.0018670910346146943,
+  "time": 115.45367479324341
+ },
+ {
+  "name": "CFD published",
+  "noise": 1e-10,
+  "seed": 2,
+  "comp": 80.84481493833465,
+  "comp_true": 80.76576240445705,
+  "nit": 276,
+  "message": "`gtol` termination condition is satisfied.",
+  "optimality": 0.0008550040558997461,
+  "time": 130.5389244556427
+ },
+ {
+  "name": "CFD patched",
+  "noise": 1e-10,
+  "seed": 2,
+  "comp": 82.05283607331856,
+  "comp_true": 81.9762327355705,
+  "nit": 314,
+  "message": "`xtol` termination condition is satisfied.",
+  "optimality": 0.0016701366484761972,
+  "time": 136.89864587783813
+ },
+ {
+  "name": "NNJ patched",
+  "noise": 1e-10,
+  "seed": 2,
+  "comp": 80.85647110694661,
+  "comp_true": 80.77776836723322,
+  "nit": 273,
+  "message": "`gtol` termination condition is satisfied.",
+  "optimality": 0.0009955205786332175,
+  "time": 138.72418856620789
+ },
+ {
+  "name": "CFD published",
+  "noise": 1e-10,
+  "seed": 3,
+  "comp": 80.7973485746666,
+  "comp_true": 80.71900115121663,
+  "nit": 291,
+  "message": "`gtol` termination condition is satisfied.",
+  "optimality": 0.0009237637572007094,
+  "time": 124.67318367958069
+ },
+ {
+  "name": "CFD patched",
+  "noise": 1e-10,
+  "seed": 3,
+  "comp": 80.87755377339832,
+  "comp_true": 80.79861623269491,
+  "nit": 296,
+  "message": "`gtol` termination condition is satisfied.",
+  "optimality": 0.0009655940105924733,
+  "time": 116.54465079307556
+ },
+ {
+  "name": "NNJ patched",
+  "noise": 1e-10,
+  "seed": 3,
+  "comp": 82.13874189605235,
+  "comp_true": 82.06115222112973,
+  "nit": 237,
+  "message": "`xtol` termination condition is satisfied.",
+  "optimality": 0.0014317089276949038,
+  "time": 97.34543657302856
+ },
+ {
+  "name": "CFD published",
+  "noise": 1e-10,
+  "seed": 4,
+  "comp": 80.84518625712889,
+  "comp_true": 80.76631148497898,
+  "nit": 333,
+  "message": "`gtol` termination condition is satisfied.",
+  "optimality": 0.0008235563276270067,
+  "time": 136.56124830245972
+ },
+ {
+  "name": "CFD patched",
+  "noise": 1e-10,
+  "seed": 4,
+  "comp": 82.15341124269965,
+  "comp_true": 82.07589806938634,
+  "nit": 246,
+  "message": "`xtol` termination condition is satisfied.",
+  "optimality": 0.0014078081021257315,
+  "time": 91.79630994796753
+ },
+ {
+  "name": "NNJ patched",
+  "noise": 1e-10,
+  "seed": 4,
+  "comp": 82.02011320869781,
+  "comp_true": 81.94352165680999,
+  "nit": 303,
+  "message": "`xtol` termination condition is satisfied.",
+  "optimality": 0.0015210618090052436,
+  "time": 101.70920157432556
+ },
+ {
+  "name": "CFD published",
+  "noise": 1e-10,
+  "seed": 5,
+  "comp": 82.19516299035944,
+  "comp_true": 82.11772522582831,
+  "nit": 233,
+  "message": "`xtol` termination condition is satisfied.",
+  "optimality": 0.0017881669388494746,
+  "time": 86.97773122787476
+ },
+ {
+  "name": "NNJ patched",
+  "noise": 1e-10,
+  "seed": 5,
+  "comp": 82.16593084671135,
+  "comp_true": 82.08840006189583,
+  "nit": 235,
+  "message": "`xtol` termination condition is satisfied.",
+  "optimality": 0.0013177700349625322,
+  "time": 106.24390864372253
+ },
+ {
+  "name": "CFD patched",
+  "noise": 1e-10,
+  "seed": 5,
+  "comp": 80.84487222103814,
+  "comp_true": 80.76620334546706,
+  "nit": 281,
+  "message": "`gtol` termination condition is satisfied.",
+  "optimality": 0.0009995791519260694,
+  "time": 125.87602519989014
+ }
+]

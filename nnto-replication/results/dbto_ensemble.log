@@ -1,0 +1,8 @@
+[1/46] SIMP             seed  0: comp=82.161 true=82.161 nit=223 (`xtol` termination condition) 71s
+[2/46] NNJ              seed  0: comp=82.033 true=81.956 nit=276 (`xtol` termination condition) 94s
+[3/46] CFD-f32          seed  0: comp=80.863 true=80.784 nit=281 (`gtol` termination condition) 182s
+[4/46] CSM              seed  0: comp=80.829 true=80.750 nit=279 (`gtol` termination condition) 204s
+[5/46] AD-rev           seed  0: comp=80.853 true=80.774 nit=277 (`gtol` termination condition) 291s
+[6/46] CFD              seed  0: comp=82.127 true=82.050 nit=405 (`gtol` termination condition) 318s
+[7/46] NNJ+1e-10        seed  2: comp=82.084 true=82.007 nit=257 (`xtol` termination condition) 613s
+[8/46] NNJ+1e-10        seed  1: comp=80.868 true=80.790 nit=288 (`gtol` termination condition) 672s

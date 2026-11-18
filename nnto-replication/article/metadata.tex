@@ -1,0 +1,42 @@
+% DO NOT EDIT - automatically generated from metadata.yaml
+
+\def \codeURL{https://github.com/j-c-leyendecker/nnto-replication}
+\def \codeDOI{}
+\def \codeSWH{}
+\def \dataURL{}
+\def \dataDOI{}
+\def \editorNAME{}
+\def \editorORCID{}
+\def \reviewerINAME{}
+\def \reviewerIORCID{}
+\def \reviewerIINAME{}
+\def \reviewerIIORCID{}
+\def \dateRECEIVED{}
+\def \dateACCEPTED{}
+\def \datePUBLISHED{}
+\def \articleTITLE{[Re] Evaluation of Neural Network-Based Derivatives for Topology Optimization}
+\def \articleTYPE{Replication}
+\def \articleDOMAIN{Computational Mechanics}
+\def \articleBIBLIOGRAPHY{bibliography.bib}
+\def \articleYEAR{2026}
+\def \reviewURL{}
+\def \articleABSTRACT{We replicate Najmon and Tovar (2024), who compared four ways of differentiating neural-network material models in topology optimization (the analytic network Jacobian NNJ, central finite differences CFD, the complex-step method CSM and automatic differentiation AD) in density-based (DBTO) and homogenization-based (HBTO) compliance problems on a half MBB beam. With an independent NumPy/SciPy implementation that reads the authors' trained networks, and by re-running the authors' own functions, we reproduce every published number that can be recomputed from the released networks and designs, and we confirm that NNJ, CSM and AD agree to round-off. Three conclusions change once references that the original study lacked are added. The CFD discrepancy comes from single-precision rounding of the step in the implementation; in double precision CFD agrees with the other methods to within 1e-9. The ranking of the methods on the DBTO problem lies within the spread of repeated runs that differ only by round-off. On the HBTO problem the error of the network itself, measured against a mesh-converged homogenization model, is about 600 times larger in mean squared error than the differences between the derivative methods, and the true compliances of the published designs are 8.5 to 10.3 percent higher than reported. In additional experiments, a network trained on mesh-converged data with derivative labels gives designs whose true compliance is 3.9 to 4.6 percent lower than that of the best published design, within 0.12 percent of the optimum obtained with the reference model itself.}
+\def \replicationCITE{Najmon, J. and Tovar, A. (2024). Evaluation of Neural Network-Based Derivatives for Topology Optimization. Journal of Mechanical Design 146(7), 071704.}
+\def \replicationBIB{Najmon:2024}
+\def \replicationURL{https://github.com/edrl-purdue/nn-derivative-to/blob/main/Evaluation_of_Neural_Network_based_Derivatives_for_Topology_Optimization_preprint.pdf}
+\def \replicationDOI{10.1115/1.4064243}
+\def \contactNAME{Daksh Anand}
+\def \contactEMAIL{daksh501a@gmail.com}
+\def \articleKEYWORDS{rescience c, replication, python, topology optimization, neural networks, sensitivity analysis, complex step, automatic differentiation, homogenization}
+\def \journalNAME{ReScience C}
+\def \journalVOLUME{}
+\def \journalISSUE{}
+\def \articleNUMBER{}
+\def \articleDOI{}
+\def \authorsFULL{Daksh Anand}
+\def \authorsABBRV{D. Anand}
+\def \authorsSHORT{Anand}
+\title{\articleTITLE}
+\date{}
+\author[1,\orcid{0009-0003-6100-9295}]{Daksh Anand}
+\affil[1]{Department of Computer Science and Engineering, Thapar Institute of Engineering and Technology, Patiala, Punjab, India}

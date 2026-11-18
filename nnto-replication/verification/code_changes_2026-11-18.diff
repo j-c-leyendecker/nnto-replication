@@ -1,0 +1,1276 @@
+diff --git a/.gitignore b/.gitignore
+new file mode 100644
+index 0000000..2714ad1
+--- /dev/null
++++ b/.gitignore
+@@ -0,0 +1,7 @@
++__pycache__/
++*.pyc
++.DS_Store
++.venv/
++.idea/
++.pytest_cache/
++.mypy_cache/
+diff --git a/COMPARISON_WITH_PAPER.md b/COMPARISON_WITH_PAPER.md
+new file mode 100644
+index 0000000..8e3fb99
+--- /dev/null
++++ b/COMPARISON_WITH_PAPER.md
+@@ -0,0 +1,113 @@
++# Your final results vs the original paper
++
++**Paper:** J. Najmon and A. Tovar, "Evaluation of Neural Network-Based Derivatives for Topology Optimization", *ASME J. Mech. Des.* 146(7), 071704 (2024): Tables 1–2, Figs. 5, 6, 8, 9, 11, Sec. 5.
++**Your results (the reference):** `comprehensive_results.docx` (your final results) and, for the multiscale optimisation runs that it does not include, the console output in `improvemt_document.docx`. Section numbers like "§3.9" point to `comprehensive_results.docx`.
++**Checked against:** the authors' saved results, an independent re-implementation of the finite-element scoring, and a complete rerun of the package (`verification/`).
++
++## 1. In short
++
++* **Confirmed:** NNJ, CSM and AD give the same derivatives (to about 1e-15), and the paper's printed Table 1 errors, Fig. 8 and Fig. 11 values come out of the authors' saved models and designs exactly.
++* **Overturned:** the paper's "CFD is less accurate" result is a float32 bug in the code, not the method; and its multiscale (HBTO) compliances are 8.5–10.3 % too optimistic, because the network overestimates the stiffness.
++* **Not supported:** the paper's ranking of methods on the density problem (Fig. 5) is within run-to-run noise: repeated runs of one method land 1.5 % apart.
++* **Your improvement:** a deeper network trained on mesh-converged data with derivative labels gives designs with 3.9–4.6 % lower true compliance than the paper's, within about 0.1 % of the best design found with the exact material model. About half of that gain is the better network and half the consistent formulation and optimizer.
++
++## 2. The paper's results, one by one
++
++| # | Paper result | Paper | Your result | Verdict |
++|---|---|---|---|---|
++| 1 | Table 1: density (DBTO) network test MSE, 10,000 samples | 1.87 × 10⁻⁷ | 1.866 × 10⁻⁷ against the exact SIMP law (§3.1) | ✅ Reproduced |
++| 2 | Table 1: multiscale (HBTO) network test MSE | 1.47 × 10⁻³ | 1.468 × 10⁻³ on the authors' own test rows (§3.3) | ✅ Reproduced |
++| 3 | Table 1: 100-sample network (1.44 × 10⁻⁴) and training times (7–41 min) | — | not rerun: the authors' saved networks were used | — Not tested |
++| 4 | NNJ, CSM and AD give identical sensitivities | "to working precision" | agree to 7.5 × 10⁻¹⁶ – 1.5 × 10⁻¹⁵ (§2.4), and for six architectures (§7.8) | ✅ Confirmed |
++| 5 | CFD differs from the others (Figs. 8, 11) "most likely" because of the finite step | MSE 1.11 × 10⁻³ (DBTO), 1.07 × 10⁻⁴ (HBTO) | same MSEs, predicted exactly by float32 rounding of the step, which makes it 1.0133 × 10⁻⁶ instead of 10⁻⁶ (§2.8). With float64, CFD's error drops from 1.65 × 10⁻² to 2.3 × 10⁻¹⁰ (§2.1) | ❌ A code bug, not the method |
++| 6 | Fig. 8: differences between the density designs (10 pairs) and their starting sensitivities | θ-MSE 7.85 × 10⁻⁴ – 7.58 × 10⁻²; sensitivity MSE 0 – 2.84 × 10⁻³ | all 20 values recomputed from the authors' saved designs to 3 significant figures (check made here) | ✅ Reproduced |
++| 7 | Fig. 5: density-problem compliance, one run per method | SIMP 81.97, NNJ 82.16, CFD 80.84, CSM 82.69, AD 80.96 | the saved designs give exactly these values; but 10 repeated runs (§4) land in two groups, ≈ 80.8 and ≈ 82.1, whatever the method | ❌ The ranking is noise |
++| 8 | Fig. 5: iterations | 287–657 | 220–343 (§4) | ⚠ Different SciPy version, different paths |
++| 9 | Fig. 6: 100-sample network gives 86.38 | 86.38 | not rerun | — Not tested |
++| 10 | Fig. 9: multiscale (HBTO) final compliance | NNJ 75.70, CFD 76.78, CSM 76.14, AD 75.70 | the same designs scored with a converged material model: 82.16–84.25 (authors' voxel model), 82.65–84.72 (converged reference) (§3.9) | ❌ 8.5–10.3 % too optimistic |
++| 11 | Fig. 9: iterations; compliance at iterations 10 and 100 | 1,105–1,371; 172.68–173.83; 105.19–106.98 | not rerun (30–36 h per run with the original optimizer) | — Not tested |
++| 12 | Fig. 11: differences between the multiscale designs (6 pairs) | θ-MSE 3.23 × 10⁻³ – 4.12 × 10⁻² | all six reproduced (with the 7.5 % bound snapping of the Fig. 9 caption) | ✅ Reproduced |
++| 13 | Table 2: seconds per iteration for the sensitivities | CSM fastest (0.088 / 0.180 s), NNJ and AD slowest (2.7–8.6 s) | original routines without TensorFlow: CFD fastest (2–4 ms), AD slowest (1.1–5.9 s); vectorised, all five take 1–60 ms (§5.2). Your §5.1 repeats the paper's Table 2; it is not a measurement | ⚠ Times measure the implementation, not the method |
++| 14 | Sec. 5: NNJ and AD recommended | — | all four are equally accurate once CFD runs in float64; only reverse-mode AD stays cheap with many inputs (§5.6) | ⚠ Partly |
++| 15 | Sec. 5: a more accurate network gives a better design (Fig. 6) | DBTO only | holds for HBTO too: the improved network's designs have 3.9–4.6 % lower true compliance | ✅ Confirmed and quantified |
++| 16 | Sec. 4.3: no ground truth for HBTO | — | built one: the published network's derivative error is 64 % / 14 % (whole range / interior) | New |
++
++## 3. What you improved, and by how much
++
++| Metric | Paper / original | Your final result | Change |
++|---|---|---|---|
++| CFD derivative error at h = 10⁻⁶ (DBTO / HBTO) | 1.65 × 10⁻² / 1.53 × 10⁻² (float32 step) | 2.3 × 10⁻¹⁰ / 1.1 × 10⁻⁹ (float64) | > 10⁷× lower |
++| HBTO network error on stiffness values (300 independent points) | 4.08 % | 0.025 % | ~160× lower |
++| HBTO network error on stiffness derivatives, whole range / interior | 64 % / 14 % | 0.51 % / 0.28 % | 127× / 52× lower |
++| Stiffness predictions that are not positive-definite | 1.9 % | 0 % with the Cholesky output head (2.1 % without) | removed |
++| Starting-design sensitivity error (raw gradients) | 22 % | 3.1 % | 7× lower |
++| **True compliance of the final multiscale design** (lower = stiffer) | 82.11–82.65 for the paper's best design (reported as 75.70) | **78.88 ± 0.15** (3 trained networks) | **3.9–4.6 % lower** |
++| The paper's network with your optimizer | 81.96 after 3,000 iterations; about 80.5 from 10,000 to 30,000 iterations, never converging | 78.88, converged in 694–1,148 iterations | 3.8 % / about 2 % lower |
++| Distance from the reference optimum (78.85) | +4.1 to +4.8 % | −0.02 to +0.12 % | ≈ 99 % of the gap closed |
++| Network's error on its own design's compliance | −7.8 to −8.4 % | within ±0.08 % (mean absolute 0.035 %) | 99–238× smaller |
++| One multiscale optimisation | 1,105–1,371 iterations, 30–36 h (authors' logs) | 694–1,148 iterations, 1–2 min | — |
++| Objective + gradient, one evaluation | 2.41 s (yours; 0.77 s in the clean rerun) | 0.014 s (0.011 s) | 170× (67×) faster |
++| trust-constr iteration, 60 × 30 mesh | 538 s with the dense Jacobian (yours; 16 s clean) | 3.1 s with a sparse one (0.14 s) | 174× (111×) faster |
++| Density (DBTO) problem | 80.84–82.69, one run per method | 80.77–82.16 over repeated runs, in two groups | no measurable gain |
++
++Values come from `comprehensive_results.docx`, except the multiscale optimisation rows and the improved network's starting-design error (`improvemt_document.docx` §1, §7, §12), the 10,000–30,000-iteration runs (`exp_published_long.py`, run here) and the time per run (rerun here).
++
++**Where the 4 % comes from** (`improvemt_document.docx` §1; true compliance, your optimizer):
++
++| Configuration | True compliance | Converged |
++|---|---|---|
++| Paper's network | 81.96 at 3,000 iterations; ≈ 80.5 later | never |
++| Paper's 1 × 64 network retrained on converged data with derivative labels | 79.31 ± 0.24 | yes |
++| Deep 3 × 64 network on the paper's data | 79.24 ± 0.49 | no |
++| Deep network, converged data, values only | 78.86 ± 0.12 | no |
++| **Deep network, converged data + derivative labels** | **78.88 ± 0.15** | **yes** |
++| ResNet, Fourier, SIREN, KAN (same data and labels) | 78.83–78.87 | yes |
++| Exact material model (reference) | 78.85 | yes |
++
++* Of the 3.9–4.6 % over the paper's design, 2.0–2.6 % comes from the consistent formulation and optimizer (the paper's network reaches ≈ 80.5 with them) and about 2.0 % from the better network (80.5 → 78.88).
++* Better data with derivative labels, or a deeper network, each recover most of the network's share; together they also converge.
++* Newer architectures add nothing over a plain deep MLP.
++
++## 4. Corrections to `comprehensive_results.docx`
++
++These are labelling and interpretation errors in the document; the numbers themselves come out of the result files correctly.
++
++| Where | What it says | What it is |
++|---|---|---|
++| Key findings | "CFD optimal step size is ~1e-7 to 1e-8 in float64" | Your own §2.1–2.2 tables have the smallest float64 error at h ≈ 1e-5 (DBTO: 5.7e-11) and 1e-6–1e-5 (HBTO: 1.1e-9). |
++| Key findings | "float32 suffers catastrophic cancellation below 1e-6" | All-float32 CFD is already 1.4 % wrong at h = 1e-5 and 18 % at 1e-6 (DBTO); its best step is ≈ 1e-2. |
++| Key findings | "Vectorized implementations provide 10–100x speedup" | 1.2× (CFD) to about 3,000× (AD, HBTO) in §5.2; 170× for objective + gradient (§5.4). |
++| Key findings | "Newer architectures … show improved performance over paper MLP" | True against the paper's 1 × 64 network, but none beats a plain deep MLP: the deep 3 × 64 tanh MLP has the lowest derivative error (§8.3), and in the optimisation all of them reach the same compliance (78.83–78.88). |
++| §2.1–2.5 | columns "rel_err / abs_err" | The largest and the RMS relative error (both scaled by the largest derivative), not a relative and an absolute error. |
++| §2.6 | "CFD Optimal Step: 4.4926e-11" | The error reached with the optimal step, not the step size; likewise for Ridders. |
++| §2.7 | "Mean Error / Std Error" per binade | The smallest and largest relative error in each binade (a range). |
++| §3.8 | "Sensitivity MSE NN vs Truth 0.1245" next to "Sensitivity MSE CFD f32 vs NNJ Paper 1.07e-4" | Different bases: 0.1245 is on raw gradients, the paper's 1.07e-4 on filtered ones. On the same filtered basis the network error is 0.064, about 600× the paper's CFD difference (19× in relative terms). |
++| §3.9 | "Underest. vs Converged" 9.2–10.3 % | About 30 % of the cells in the authors' designs have a hole side below 0.01, which the converged reference treats as a thin slit. Counted as solid, as in the authors' own data, it is 8.5–9.7 %, the same as the voxel model. |
++| §4 | "Patch check … for HBTO optimization" | It is the density (DBTO) problem. The table holds 10 of the 19 planned runs. |
++| §5.1 | "Paper Table 2 Reproduction" | These are the paper's own Table 2 values, copied. Your measured times are §5.2–5.6. |
++| §5.2–5.6 | timings | Much slower than a clean run (538 s vs 16 s per dense trust-constr iteration; 63 ms vs 0.3 ms for a one-input reverse-mode gradient), so the machine was probably busy with other runs. The ratios point the same way as in the clean rerun (dense vs sparse 174× vs 111×). §5.6 is in seconds. |
++| §7 | "Comparison of 12 architectures" | Six architectures, each trained two ways (values only, Sobolev). |
++| — | missing | The multiscale optimisation results with the newer networks (true compliance of the final designs), the main improvement. They are in `improvemt_document.docx` §1 and §7 and in §3 above. |
++
++## 5. How far your results reproduce
++
++The whole package was rerun from scratch on Linux (`verification/`). Your documents were made on your Mac.
++
++* **Identical, or equal to round-off:**
++  * the mesh-converged reference (bit-identical), the voxel model (≤ 2.6 × 10⁻⁶) and the 300 test points (≤ 3.4 × 10⁻⁷);
++  * every number in the surrogate-truth output (≤ 2.3 × 10⁻¹⁴ against your document), the paper-figure checks (§2.8) and the network accuracy table (§8);
++  * all 60 newer networks: retrained bit-identical to the ones in your package;
++  * all 31 multiscale optimisation runs: identical true compliance, iterations and volume.
++* **Different, with the same conclusions:**
++  * Round-off-sized numbers (10⁻¹⁶ to 10⁻⁹, e.g. CSM/AD agreement, CFD at tiny steps) vary by up to about 2× between runs and machines. Quote their order of magnitude.
++  * The 1-D architecture study (§7) trains to different networks on your Mac and on Linux (e.g. value error 7.9 × 10⁻⁵ on yours, 4.7 × 10⁻⁵ on Linux); Linux runs repeat bit for bit. The conclusions (derivative labels cut the first-derivative error by roughly an order of magnitude; ReLU breaks second derivatives; NNJ = CSM = AD) hold on both.
++  * The density-problem runs (§4) are chaotic. From the same start your Mac and Linux take different paths (CFD published, seed 2: 82.16 on yours, 80.77 on Linux; NNJ published: 80.77 vs 81.96), but both land in the same two groups, ≈ 80.7–80.9 and ≈ 81.9–82.2. That is the spread of the paper's Fig. 5, produced by round-off alone. The Linux rerun (19 runs) repeats the earlier Linux run exactly.
++  * Timings depend on the machine and its load (§5).
++
++## 6. Caveats
++
++* **Not rerun from the paper:** Table 1 training times and the 100-sample network (Fig. 6); the authors' multiscale runs with their own optimizer (Fig. 9 iterations, Fig. 10; 30–36 h each); Appendix B.
++* **Different optimizer:** your improvement uses MMA with a consistent density filter and hole sizes in 0.01–0.99; the paper used trust-constr with a heuristic sensitivity filter. The comparison with the paper's network under your optimizer isolates the network's share (about 2 %).
++* **Different training data:** the improved networks use 2,601 mesh-converged samples with derivative labels; the paper's network used 7,000 training rows of its 10,000-sample voxel data set.
++* **Sample sizes:** 2–3 runs per configuration; the paper's network is a single trained instance.
++* **Not rerun here:** the long density-problem ensembles (`exp_dbto_ensemble.py`, `exp_dbto_part2.py`, about 1.5 h); the patch check covers the same question.
+diff --git a/FIXES_2026-11-18.md b/FIXES_2026-11-18.md
+new file mode 100644
+index 0000000..d1efaf1
+--- /dev/null
++++ b/FIXES_2026-11-18.md
+@@ -0,0 +1,32 @@
++# Fixes and full rerun, 18 November 2026
++
++**Reference for every number:** the console output you ran yourself and pasted into `improvemt_document.docx` ("the document"). The `results/` folder of the uploaded package is treated as another output to check, not as a source. Everything was rerun from scratch here (Linux, Python 3.13.18, NumPy 2.5.3, SciPy 1.18.1); the rerun is in `verification/full_rerun_2026-11-18/` and is compared line by line with the document in `verification/README.md`.
++
++## 1. What was wrong and what changed
++
++| # | Issue | Where | Label | Fix | Effect |
++|---|---|---|---|---|---|
++| F1 | The "method vs network" ratio divided a raw-gradient MSE (0.125) by the paper's filtered-gradient MSE (1.07e-4) and was quoted as 1,160× | `SUMMARY.md` §5, `reports/part3_gaps.md`; `exp_surrogate_truth.py` stored the paper's value next to a raw-basis MSE | Confirmed analysis bug | `exp_surrogate_truth.py` computes both quantities on both bases (`sensitivity_bases`) and checks that the authors' saved `dc0` is the filtered sensitivity (difference 2.2e-12; 0.89 from the raw one) | **601×** in MSE on the paper's filtered basis, 444× on raw gradients; 19× and 17× in relative L2 |
++| F2 | The authors' designs were scored with hole sides below 0.01 clamped to a 1 % slit | `exp_surrogate_truth.py` (the reference spline clamps outside 0.01–0.99) | Methodological ambiguity | Both conventions are reported; `nnto/scoring.py::SmallHolesSolid` counts such holes as absent, as the authors' voxel data does | Authors' designs are **8.5–9.7 %** (holes < 1 % solid) or 9.2–10.3 % (thin slits) worse than reported |
++| F3 | The mean of signed model errors hid cancellation (+0.03, 0.00, −0.08 % averaged to −0.02 %) | summaries in `exp_newer_models_to.py`, `analyse_newer_models.py` | Confirmed reporting bug | Summaries add the mean and largest absolute error (`error_summary`) | Improved network: mean absolute 0.035 %, worst 0.079 %; vs 7.8–8.4 % for the authors' best design: **99–238× smaller**, not "> 300×" |
++| F4 | Published-network runs stop at the 3,000-iteration cap unconverged and 0.01–0.3 % short of the volume target | `exp_newer_models_to.py` | Methodological limitation | Each run records its volume violation and the true compliance at the exact volume target (`project_volume`); `--maxiter` option; new `exp_published_long.py` follows the published network for 30,000 iterations | See §3: the gap to the improved network depends on the iteration budget |
++| F5 | Ground-truth scripts ignored the results-folder setting; `analyse_patch_check.py` crashed on an incomplete `patch_check.npz` (the uploaded one held 2 of 19 runs) | `gt_*.py`, `analyse_patch_check.py` | Confirmed implementation bugs | `NNTO_RESULTS` honoured everywhere (`common.py`, `gt_*.py`), `NNTO_FIGURES` for figures; the analysis skips missing configurations | Reruns can go to a separate folder |
++| F6 | Authors' training set given as 10,000 samples | `SUMMARY.md` §10 | Documentation error | 7,000 training rows of 10,000 (15 % validation, 15 % test) | — |
++
++New files: `nnto/scoring.py`, `experiments/rescore_final_designs.py` (re-scores every saved final design; `results/final_designs_rescored.json`), `experiments/exp_published_long.py`, `tests/test_scoring.py` (7 tests; 107 pass). `make_figures.py` Fig. 4 now shows both hole conventions (bar: solid, whisker: slit).
++
++## 2. Reproducibility (details in `verification/README.md`)
++
++* Every script was rerun from scratch with the fixed code into `verification/full_rerun_2026-11-18/` (about 2 h on 2 cores), except the long density-problem ensembles (`exp_dbto_ensemble.py`, `exp_dbto_part2.py`), the trust-constr multiscale runs (`exp_hbto_runs.py`, never run to completion by design) and the TensorFlow cross-check.
++* Deterministic results reproduce to round-off: ground truth, surrogate truth (≤ 2.3e-14 against the document), all 60 newer networks (bit-identical), all 31 multiscale optimisation runs (identical).
++* An independent finite-element re-implementation (written separately from the package) reproduces the start-design compliances, the authors' saved start-design sensitivities, and every true compliance of the authors' designs and of the optimisation runs.
++* Not bit-reproducible across machines: round-off-sized numbers, the 1-D architecture study (training differs between Mac and Linux), the chaotic density-problem runs, and timings. Conclusions are unchanged.
++* `results/` keeps the uploaded files, except: `surrogate_truth.json` (rerun with the fixed script; all earlier values unchanged to 7.6e-11), `patch_check.json`/`.npz` (the uploaded files held 2 of 19 runs from an interrupted run; replaced by the complete rerun, which matches the uploaded `patch_check_summary.json`), and the new `final_designs_rescored.json` and `published_long.json`. `dbto_ensemble.npz` (1 run) is also left over from an interrupted run; `make_figures.py` uses `dbto_ensemble_part1.npz`.
++
++## 3. Final numbers
++
++See `COMPARISON_WITH_PAPER.md` for the full comparison with the paper. In short:
++* The paper's printed numbers (Table 1 errors, Figs. 8 and 11) come out of the authors' saved models and designs exactly; NNJ, CSM and AD agree to about 1e-15.
++* The paper's CFD discrepancy is a float32 bug (error 1.65e-2 → 2.3e-10 in float64), and its multiscale compliances are 8.5–10.3 % too optimistic.
++* The improved network gives designs with 3.9–4.6 % lower true compliance than the paper's, within 0.1 % of the reference optimum. Against the paper's network with the same optimizer the gain is 3.8 % at 3,000 iterations and about 2 % once that network has plateaued (≈ 80.5 from 10,000 to 30,000 iterations, never converging).
++* Density problem: no measurable gain; repeated runs of one method land 1.5 % apart.
+diff --git a/README.md b/README.md
+index 52746e7..2e80411 100644
+--- a/README.md
++++ b/README.md
+@@ -32,6 +32,9 @@ script and result file behind each number.
+ | `tests/` | 100 unit tests, including reproduction of the authors' saved numbers |
+ | `experiments/` | The scripts that produced every number in `SUMMARY.md` and `reports/` |
+ | `results/` | JSON/NPZ outputs, trained networks (`models/`), ground-truth tables |
++| `FIXES_2026-11-18.md` | The analysis fixes of 18 November 2026 and the final numbers |
++| `nnto/scoring.py` | Scoring helpers added with those fixes: sensitivity bases, hole-size convention, volume projection, absolute error summaries |
++| `verification/` | A complete rerun of the package (`full_rerun_2026-11-18/`) and its line-by-line comparison with the console output in `improvemt_document.docx` (`README.md`) |
+ 
+ ## Reproduce
+ 
+@@ -67,8 +70,16 @@ python experiments/exp_newer_models.py 3 2    # 6 architectures x 4 training reg
+ python experiments/exp_newer_models_to.py --out=to_baselines "reference*3" "published*2"
+ python experiments/exp_newer_models_to.py "Deep MLP 3x64 tanh | converged + Sobolev" "Deep MLP 3x64 tanh | paper data" ...
+ python experiments/analyse_newer_models.py
++
++# added 18 November 2026 (FIXES_2026-11-18.md)
++python experiments/rescore_final_designs.py   # re-scores every saved final design, no re-optimisation
++python experiments/exp_published_long.py 30000 1000   # published network for 30,000 MMA iterations (~16 min)
+ ```
+ 
++To rerun without touching `results/`, point `NNTO_RESULTS` (and `NNTO_FIGURES`) at
++another folder; every script reads its inputs from and writes its outputs to that
++folder. `verification/full_rerun_2026-11-18/` was produced this way.
++
+ `experiments/exp_hbto_runs.py` runs the consistent HBTO formulation with
+ `trust-constr`. At more than 2 s per iteration it was not run to completion
+ here; the HBTO comparisons in `SUMMARY.md` use MMA instead.
+diff --git a/SUMMARY.md b/SUMMARY.md
+index 9483de7..f2ff861 100644
+--- a/SUMMARY.md
++++ b/SUMMARY.md
+@@ -5,9 +5,11 @@
+ 
+ **Status (13 November 2026).** Reports 1–3 (paper review, code audit, literature and gaps) are in `reports/`. This file summarises every result, including the experiments that Reports 4–6 would draw on. Report 4 (research proposal) and Report 6 (publication readiness) are not written yet. Findings are labelled as in the project brief: confirmed mathematical error, confirmed implementation bug, potential numerical issue, methodological limitation, research opportunity, unverified hypothesis.
+ 
++**Fixes (18 November 2026).** Four analysis errors were fixed and the affected numbers recomputed from the saved results (`FIXES_2026-11-18.md`): the method-vs-network ratio (§5) is about 600×, not 1,160×; the authors' designs are 8.5–10.3 % worse than reported depending on how holes narrower than 1 % are counted (§5); model errors are summarised by their absolute values (§6); runs that stop short of the volume target are also compared at equal material (§6). Reruns on a second machine reproduce the shipped results (`verification/`).
++
+ ## 1. In one paragraph
+ 
+-The paper's first-order claim holds: the analytic network Jacobian (NNJ), the complex step (CSM) and automatic differentiation (AD) give the same derivatives of a smooth network, to round-off. Its other conclusions do not survive checking. The finite-difference (CFD) discrepancy it reports is a float32 rounding bug in the code, not a property of the method. The ranking of methods rests on one run each, and those outcomes flip under 1e-10 perturbations. For the multiscale (HBTO) problem the network itself, not the differentiation method, is the dominant error: its derivatives are off by 78 % over the parameter domain (15 % in the interior), and the published designs are 8.5–10.3 % less stiff than reported. A deeper network trained on mesh-converged data with derivative labels removes that error. Its designs are within 0.1 % of the reference optimum, and it predicts their compliance to within 0.1 %.
++The paper's first-order claim holds: the analytic network Jacobian (NNJ), the complex step (CSM) and automatic differentiation (AD) give the same derivatives of a smooth network, to round-off. Its other conclusions do not survive checking. The finite-difference (CFD) discrepancy it reports is a float32 rounding bug in the code, not a property of the method. The ranking of methods rests on one run each, and those outcomes flip under 1e-10 perturbations. For the multiscale (HBTO) problem the network itself, not the differentiation method, is the dominant error: its derivatives are off by 78 % over the parameter domain (15 % in the interior), and the published designs are 8.5–10.3 % less stiff than reported. A deeper network trained on mesh-converged data with derivative labels removes that error. Its designs are within 0.1 % of the reference optimum, and it predicts their compliance to within 0.1 %. They are about 4 % stiffer than the published designs; roughly half of that comes from the better network and half from a consistent formulation and optimizer, with which the published network still never converges.
+ 
+ ## 2. Errors in the paper's equations (Report 1)
+ 
+@@ -33,7 +35,7 @@ The paper's first-order claim holds: the analytic network Jacobian (NNJ), the co
+ | A8 | `Train_*_NN.py` | Early stopping is created but never used; the validation split never selects a model; normalisation is fitted on training + validation data. | Confirmed bug / potential leakage | Low |
+ | A6 | data set | 10,000 samples but only 2,455 distinct targets (voxel snapping). Tested: **not** a limiting factor. | Hypothesis rejected | Low |
+ 
+-A7, A9, A10 and A13–A17 (all low severity) are in `reports/part2_audit.md`. Each finding has a unit test; `python -m pytest tests -q` gives 100 passed.
++A7, A9, A10 and A13–A17 (all low severity) are in `reports/part2_audit.md`. Each finding has a unit test; `python -m pytest tests -q` gives 107 passed (100 before the fixes of 18 November 2026).
+ 
+ ## 4. The one-line float64 fix (A1) and what it changes
+ 
+@@ -54,8 +56,8 @@ The authors' voxel model is also reproduced: it regenerates their data set.
+ 
+ Against this reference:
+ * **Network error.** The published network's Jacobian has a relative RMS error of 78 % over the domain and 15 % in the interior. Its initial-design sensitivities are 22 % off in relative L2 norm.
+-* **Differentiation method vs network error.** The difference between derivative methods (MSE 1.07e-4, itself the float32 artefact) is about 1,160 times smaller than the error all four methods share (MSE 0.125).
+-* **Published designs.** The authors' four final designs are 8.5–10.3 % more compliant than the paper reports: 8.5–9.7 % under their own voxel model, 9.2–10.3 % under the converged reference. The optimizer settles where the network over-predicts stiffness.
++* **Differentiation method vs network error.** On the filtered sensitivities the paper compares in Fig. 11, the difference between derivative methods (MSE 1.07e-4, itself the float32 artefact) is about 600 times smaller than the error all four methods share (MSE 0.064; 1.3 % vs 25 % relative, 19×). On raw gradients the figures are 2.8e-4 and 0.125 (444×; 17× relative). *Corrected 18 November 2026: the earlier "1,160×" divided the raw-gradient MSE by the paper's filtered one.* The authors' stored `dc0` is the filtered sensitivity: it matches the recomputed filtered value to 2e-12.
++* **Published designs.** The authors' four final designs are 8.5–10.3 % more compliant than the paper reports: 8.5–9.7 % under their own voxel model, 9.2–10.3 % under the converged reference. About 30 % of their cells have a hole side below 0.01. The converged reference (tabulated on 0.01–0.99) scores these as 1 % slits; counted as solid, as in the authors' voxel data, the converged reference also gives 8.5–9.7 %. The optimizer settles where the network over-predicts stiffness.
+ * **New observation: the parameterization is singular at its edge.**
+   * A thin slit is much softer than solid material: C11 drops from 1.346 to 0.857 for a 5 % × 50 % slit.
+   * The data set labels holes narrower than 1 % as solid, so the training target jumps at the edge of the domain. The network's derivative error exceeds 200 % there.
+@@ -77,13 +79,18 @@ Against this reference:
+ 
+ | | Older, as published | Older network, same optimizer as newer | Newer |
+ |---|---|---|---|
+-| True compliance | 82.65 (best of the authors' four) | 81.95 (81.88–82.05) | 78.95 (78.84–78.95) |
++| True compliance | 82.65 (best of the authors' four; 82.11 if holes < 1 % count as solid) | 81.96 (81.88–82.05); 81.87 at the exact volume target | 78.88 (78.83–78.95) |
+ | Above the reference optimum | +4.8 % (other three: +5.0 to +7.4 %) | +3.8 to +4.1 % | −0.02 to +0.12 % |
+-| Network's own prediction | off by −8.4 % | off by −5.0 to −5.2 % | off by −0.08 to +0.03 % |
++| Network's own prediction | off by −7.8 to −8.4 % (depending on the hole convention) | off by −5.0 to −5.2 % | off by −0.08 to +0.03 % (mean absolute 0.035 %) |
+ | Iterations | 1,105–1,371 | stopped at the 3,000 limit, not converged | 694–1,148, converged |
+ | Time per run | 30–36 h (authors' logs, trust-constr) | about 85 s | 67–113 s |
+ 
+-* **Size of the improvement.** The newer designs have 3.8–4.6 % lower compliance. Between the two right-hand columns (3 runs each) the gap is 3.08, with a 95 % CI of 2.91–3.26 and Welch p = 2.5e-6.
++* **Size of the improvement.** Against the authors' published designs the newer designs have 3.9–4.6 % lower compliance (depending on how holes narrower than 1 % are counted). Against the older network with the same optimizer the gap depends on the iteration budget, because the older network never converges (`exp_published_long.py`):
++  * at the 3,000-iteration cap used above: 3.7–3.8 % (gap 3.08, 95 % CI 2.91–3.26, Welch p = 2.5e-6; 3.66 % with both hole fields scaled to the exact volume target, which two of the three capped runs miss by 0.2–0.3 %);
++  * after 10,000 iterations: 80.50–80.62 (3 runs), about 2.1 %;
++  * from 11,000 to 30,000 iterations it oscillates around 80.5 (80.45–80.96) without converging: about 2 %.
++  So roughly half of the 4 % over the paper comes from the better network and half from the consistent formulation and optimizer (the older network gets from 82.1–82.65 to about 80.5 with them).
++* **Model error.** Its sign varies between runs, so it is summarised by the absolute value: 0.035 % on average and 0.079 % at worst for the newer network, against 7.8–8.4 % for the authors' best design (about 100–240× smaller).
+ * **Run time.** The newer network costs about 3.5× more per iteration but converges, so total run time is about the same.
+ * **Figure.** `reports/figures/fig5_older_vs_newer.png` shows the four designs side by side.
+ 
+@@ -94,7 +101,7 @@ Against this reference:
+ | Paper's small 1 × 64 sigmoid network, retrained on converged data with derivative labels | 79.20–79.39 | yes (623–1,118), 12–23 s per run |
+ | Deep network trained on the authors' own data | 79.07–79.46 | no |
+ | Deep network, converged data, values only | 78.82–78.91 | no |
+-| Deep network, converged data + derivative labels (the "newer" above) | 78.84–78.95 | yes (694–1,148) |
++| Deep network, converged data + derivative labels (the "newer" above) | 78.83–78.95 | yes (694–1,148) |
+ | Same with the Cholesky (always valid) output head | 78.85–78.86 | yes (1,541–1,823) |
+ | Fourier features, ResNet, SIREN, Chebyshev KAN (same data and labels) | 78.83–78.89 | yes (990–1,657) |
+ 
+@@ -155,7 +162,7 @@ Novelty caveat: Sobolev training (White et al. 2019; Black & Najafi 2025) and Ch
+ * **TensorFlow was not available**, so the authors' scripts ran unchanged through a NumPy stand-in for the Keras calls. That set-up reproduces their saved numbers to 6–11 digits; the float32 behaviour of `Model.predict` is inferred from three independent numerical signatures. `experiments/tf_crosscheck_float32.py` checks it with real TensorFlow but was not run.
+ * **SciPy versions differ** (1.10.1 for the authors, 1.18 here). The `trust-constr` paths leave the authors' logged paths after iteration 6 (DBTO) and between iterations 20 and 30 (HBTO).
+ * **The HBTO comparisons use MMA**, not the authors' `trust-constr`, which takes more than 2 s per iteration here. The consistent filter and the change of optimizer were introduced together, so their effects are not separated.
+-* **The newer networks were trained on different data**: 2,601 converged solutions instead of the authors' 10,000 voxel samples.
++* **The newer networks were trained on different data**: 2,601 converged solutions instead of the 7,000 training rows of the authors' 10,000 voxel samples (the other rows are their validation and test sets).
+ * **Sample sizes and scope.**
+   * 2–3 runs per HBTO configuration and 4–6 per DBTO configuration.
+   * Only the 60 × 30 half MBB beam.
+@@ -170,5 +177,6 @@ Novelty caveat: Sobolev training (White et al. 2019; Black & Najafi 2025) and Ch
+ | §4 float64 fix | `exp_precision.py`, `exp_patch_check.py`, `analyse_patch_check.py` | `precision.json`, `patch_check*.json` |
+ | §5 ground truth, published network | `gt_voxel_lattice.py`, `gt_fitted_grid.py`, `gt_offgrid.py`, `exp_surrogate_truth.py` | `fitted_grid.npz`, `offgrid_truth.npz`, `surrogate_truth.json` |
+ | §6 newer networks | `exp_newer_models.py`, `exp_newer_models_to.py`, `analyse_newer_models.py`, `make_comparison_figure.py` | `newer_models*.json`, `to_baselines.json`, `models/` |
++| §5–6 re-scoring of every final design (fixes of 18 Nov 2026) | `rescore_final_designs.py` | `final_designs_rescored.json` |
+ | §7 noise floor | `exp_dbto_ensemble.py`, `exp_dbto_part2.py` | `dbto_part2.json`, `dbto_ensemble*.npz`, `dbto_ensemble.log` |
+ | §8 second derivatives, architectures, ensemble, cost | `exp_higher_order.py`, `exp_architectures.py`, `exp_hbto_surrogates.py`, `exp_efficiency.py` | `higher_order.json`, `architectures.json`, `hbto_surrogates.json`, `efficiency.json` |
+diff --git a/experiments/analyse_newer_models.py b/experiments/analyse_newer_models.py
+index fe944e5..e792c79 100644
+--- a/experiments/analyse_newer_models.py
++++ b/experiments/analyse_newer_models.py
+@@ -9,6 +9,8 @@ import numpy as np
+ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+ from common import RESULTS, mean_ci  # noqa: E402
+ 
++from nnto.scoring import error_summary  # noqa: E402
++
+ ORDER = ["MLP 1x64 sigmoid (paper)", "Deep MLP 3x64 tanh", "ResNet 4x64 swish",
+          "Fourier + 2x64 tanh", "SIREN 3x64", "KAN 2-16-16-4"]
+ REGIMES = ["paper data", "converged, values only", "converged + Sobolev", "converged + Sobolev + Cholesky"]
+@@ -43,17 +45,27 @@ def optimisation():
+     if not runs:
+         return
+     print("\nMicrostructure optimisation (MMA, consistent formulation); compliance scored with the converged reference")
+-    print(f"{'surrogate':62s} {'n':>2s} {'true compliance':>22s} {'surrogate says':>15s} {'error':>8s} {'iters':>6s}")
++    print("error = the surrogate's own compliance vs the truth: signed mean, and mean / max absolute value "
++          "(signed errors of opposite sign cancel; fix 2026-11-18)")
++    print(f"{'surrogate':62s} {'n':>2s} {'true compliance':>22s} {'surrogate says':>15s} {'error':>8s} {'|error|':>8s} "
++          f"{'max|e|':>7s} {'iters':>6s} {'volume (min)':>12s}")
+     for lab in dict.fromkeys(r["label"] for r in runs):
+         sel = [r for r in runs if r["label"] == lab and r.get("noise", 0.0) == 0.0]
+         rep = [r for r in runs if r["label"] == lab]
+         v = [r["compliance_true"] for r in sel]
+         m, sd, hw = mean_ci(v) if len(v) > 1 else (v[0], float("nan"), float("nan"))
+         ci = f"± {hw:.3f}" if len(v) > 1 else "      "
++        es = error_summary([r["model_error_pct"] for r in sel])
+         print(f"{lab:62s} {len(sel):2d} {m:12.3f} {ci:>9s} {np.mean([r['compliance_model'] for r in sel]):15.3f} "
+-              f"{np.mean([r['model_error_pct'] for r in sel]):+7.2f}% {np.mean([r['nit'] for r in sel]):6.0f}"
++              f"{es['mean_signed']:+7.2f}% {es['mean_abs']:7.2f}% {es['max_abs']:6.2f}% {np.mean([r['nit'] for r in sel]):6.0f} "
++              f"{min(r['volume_fraction'] for r in rep):12.5f}"
+               + (f"   perturbed repeats: {', '.join(f'{r['compliance_true']:.3f}' for r in rep if r.get('noise', 0) > 0)}"
+                  if len(rep) > len(sel) else ""))
++    p = os.path.join(RESULTS, "final_designs_rescored.json")
++    if os.path.exists(p):
++        print("\nAt equal material (both hole fields scaled to the exact volume target), from final_designs_rescored.json:")
++        for lab, s in json.load(open(p))["mma_runs"]["by_label"].items():
++            print(f"  {lab:60s} true {s['true']['mean']:.3f} -> at target volume {s['true_at_target_volume']['mean']:.3f}")
+ 
+ 
+ if __name__ == "__main__":
+diff --git a/experiments/analyse_patch_check.py b/experiments/analyse_patch_check.py
+index d9b35c2..fcfdf4e 100644
+--- a/experiments/analyse_patch_check.py
++++ b/experiments/analyse_patch_check.py
+@@ -20,6 +20,9 @@ print(f"{'config':15s} {'n':>2s} {'true compliance mean ± 95% CI':>32s} {'min':
+ for cfg in ("CFD published", "CFD patched", "NNJ patched", "NNJ published"):
+     m = names == cfg
+     c = ct[m]; it = nit[m]
++    if c.size == 0:      # robustness fix 2026-11-18: an interrupted run leaves configs out
++        print(f"{cfg:15s}  0   (no runs in patch_check.npz)")
++        continue
+     g = sum(msg[(cfg, int(s))].startswith("`gtol") for s in seeds[m])
+     mc, sd, hw = mean_ci(c) if c.size > 1 else (c[0], np.nan, np.nan)
+     mi, sdi, hwi = mean_ci(it) if it.size > 1 else (it[0], np.nan, np.nan)
+@@ -32,6 +35,8 @@ for cfg in ("CFD published", "CFD patched", "NNJ patched", "NNJ published"):
+ 
+ for a, b in (("CFD published", "CFD patched"), ("CFD published", "NNJ patched"), ("CFD patched", "NNJ patched")):
+     ca, cb = ct[names == a], ct[names == b]
++    if ca.size < 2 or cb.size < 2:
++        continue
+     t = stats.ttest_ind(ca, cb, equal_var=False)
+     u = stats.mannwhitneyu(ca, cb)
+     out.setdefault("tests", {})[f"{a} vs {b}"] = dict(welch_p=float(t.pvalue), mannwhitney_p=float(u.pvalue),
+@@ -39,11 +44,15 @@ for a, b in (("CFD published", "CFD patched"), ("CFD published", "NNJ patched"),
+     print(f"{a} vs {b}: mean difference {ca.mean() - cb.mean():+.3f}, Welch p = {t.pvalue:.2f}, Mann-Whitney p = {u.pvalue:.2f}")
+ 
+ # ---------- how long does each run follow the exact-derivative (NNJ patched) run?
+-ref = z["iterates_NNJ_patched"]
++have = lambda cfg, pre: f"{pre}_{cfg.replace(' ', '_')}" in z.files
++ref = z["iterates_NNJ_patched"] if "iterates_NNJ_patched" in z.files else None
+ print("\nDistance of the iterates from the exact-derivative run (max |theta - theta_NNJ|):")
+ print(f"{'iteration':>9s} " + " ".join(f"{c:>15s}" for c in ("CFD patched", "CFD published", "NNJ published")))
+ rows = [1, 2, 5, 10, 20, 30, 40, 60, 100, 150, 200]
+ for cfg in ("CFD patched", "CFD published", "NNJ published"):
++    if ref is None or not have(cfg, "iterates"):
++        out["divergence"][cfg] = dict(max_abs_diff=[], first_iteration_above_1em3=None, first_iteration_above_1em6=None)
++        continue
+     it = z[f"iterates_{cfg.replace(' ', '_')}"]
+     n = min(len(it), len(ref))
+     d = np.abs(it[:n] - ref[:n]).max(axis=1)
+@@ -61,6 +70,9 @@ for cfg in ("CFD patched", "CFD published", "NNJ published"):
+ 
+ print("\nMax relative error of the network derivative along each run's own path (every 10th iterate):")
+ for cfg in ("CFD published", "CFD patched", "NNJ patched"):
++    if not have(cfg, "derr"):
++        print(f"  {cfg:14s} (no runs)")
++        continue
+     e = z[f"derr_{cfg.replace(' ', '_')}"]
+     out["derivative_error_along_path"][cfg] = dict(median=float(np.median(e)), max=float(e.max()), min=float(e.min()))
+     print(f"  {cfg:14s} median {np.median(e):.2e}  range [{e.min():.2e}, {e.max():.2e}]")
+diff --git a/experiments/common.py b/experiments/common.py
+index 3e06a8d..2e5ecae 100644
+--- a/experiments/common.py
++++ b/experiments/common.py
+@@ -7,7 +7,9 @@ import numpy as np
+ 
+ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+ sys.path.insert(0, ROOT)
+-RESULTS = os.path.join(ROOT, "results")
++# NNTO_RESULTS redirects inputs and outputs to another folder, e.g. to rerun an
++# experiment without overwriting the shipped results (added 2026-11-18).
++RESULTS = os.path.abspath(os.environ.get("NNTO_RESULTS", os.path.join(ROOT, "results")))
+ os.makedirs(RESULTS, exist_ok=True)
+ 
+ 
+diff --git a/experiments/exp_newer_models_to.py b/experiments/exp_newer_models_to.py
+index 8065895..ac0f2a6 100644
+--- a/experiments/exp_newer_models_to.py
++++ b/experiments/exp_newer_models_to.py
+@@ -13,7 +13,14 @@ Every final design is scored with the mesh-converged reference model
+ the converged FE results at independent off-grid points).  The reference
+ itself is also optimised: that is what a perfect surrogate would give.
+ 
+-usage:  python exp_newer_models_to.py "<config 1>" "<config 2>" ...
++Fixes of 2026-11-18 (see FIXES_2026-11-18.md): each run also records its
++volume-constraint violation and the true compliance after scaling both hole
++fields to the exact volume target (runs stopped by the iteration cap can end
++slightly short of it); the summary reports the mean absolute and largest
++model error, not only the signed mean, whose terms can cancel.
++
++usage:  python exp_newer_models_to.py [--workers=N] [--out=NAME] [--seeds=N] [--maxiter=N]
++                                      "<config 1>" "<config 2>" ...
+         a config is "published", "reference", or "<architecture> | <regime>"
+         as in results/newer_models.json; one run per trained seed.
+ Output: results/newer_models_to.json, results/newer_models_to.npz
+@@ -32,9 +39,11 @@ from common import find_upstream, save_json, RESULTS, mean_ci, model_ref, resolv
+ from nnto.fea import mbb_half  # noqa: E402
+ from nnto.materials import NNMaterial, SplineMaterial  # noqa: E402
+ from nnto.networks import CholeskyHead, load_keras_mlp, load_network  # noqa: E402
++from nnto.scoring import error_summary, hole_volume_fraction, project_volume  # noqa: E402
+ from nnto.topopt import ComplianceProblem, run_mma  # noqa: E402
+ 
+ UP = find_upstream()
++MAXITER = 3000
+ 
+ 
+ def reference():
+@@ -43,7 +52,7 @@ def reference():
+ 
+ 
+ def run_one(job):
+-    label, path, seed, noise = job
++    label, path, seed, noise, maxiter = job if len(job) == 5 else (*job, MAXITER)
+     mesh = mbb_half()
+     truth = reference()
+     if label == "reference":
+@@ -54,16 +63,22 @@ def run_one(job):
+         mat = NNMaterial(net, "NNJ", predict_cast=None, clip="none" if chol else "consistent")
+     prob = ComplianceProblem(mesh, mat, kind="hole", filter="density", volume_jac_mode="exact",
+                              grad_noise=noise, noise_seed=seed)
+-    r = run_mma(prob, maxiter=3000, tol=1e-3, move=0.2, lb=0.01, ub=0.99)
++    r = run_mma(prob, maxiter=maxiter, tol=1e-3, move=0.2, lb=0.01, ub=0.99)
+     X = r["x"].reshape(-1, 2, order="F")
+     P = np.stack([mesh.H @ X[:, j] / mesh.Hs for j in range(2)], axis=1)
+-    c_true = ComplianceProblem(mesh, truth, kind="hole", filter="none").compliance(P.flatten("F"))
++    scorer = ComplianceProblem(mesh, truth, kind="hole", filter="none")
++    c_true = scorer.compliance(P.flatten("F"))
++    vf = hole_volume_fraction(P)
++    Pp, s = project_volume(P, prob.volfrac, lb=0.01, ub=0.99)
++    c_true_v = scorer.compliance(Pp.flatten("F"))
+     return dict(label=label, seed=seed, noise=noise, path=model_ref(path), compliance_model=r["fun"], compliance_true=c_true,
+                 model_error_pct=100 * (r["fun"] / c_true - 1), nit=r["nit"], converged=r["converged"],
+-                volume_fraction=float(1 - np.mean(P[:, 0] * P[:, 1])), seconds=r["time"], x=r["x"])
++                volume_fraction=vf, volume_violation=vf - prob.volfrac,
++                compliance_true_at_target_volume=c_true_v, volume_projection_scale=s, maxiter=maxiter,
++                seconds=r["time"], x=r["x"])
+ 
+ 
+-def main(configs, workers=2, out_name="newer_models_to", n_seeds=None):
++def main(configs, workers=2, out_name="newer_models_to", n_seeds=None, maxiter=MAXITER):
+     meta_path = os.path.join(RESULTS, "newer_models.json")
+     if not os.path.exists(meta_path):                      # training still running
+         meta_path = os.path.join(RESULTS, "newer_models_runs.json")
+@@ -76,8 +91,8 @@ def main(configs, workers=2, out_name="newer_models_to", n_seeds=None):
+         nrep = int(rep) if rep else 0
+         if base in ("published", "reference"):
+             path = os.path.join(UP, "NN_model_HBTO_1e+04") if base == "published" else ""
+-            jobs.append((base, path, 0, 0.0))
+-            jobs += [(base, path, s, 1e-10) for s in range(1, nrep + 1)]
++            jobs.append((base, path, 0, 0.0, maxiter))
++            jobs += [(base, path, s, 1e-10, maxiter) for s in range(1, nrep + 1)]
+         else:
+             arch, regime = [s.strip() for s in c.split("|")]
+             sel = sorted([r for r in runs_meta if r["arch"] == arch and r["regime"] == regime], key=lambda r: r["seed"])
+@@ -85,7 +100,7 @@ def main(configs, workers=2, out_name="newer_models_to", n_seeds=None):
+                 sel = sel[:n_seeds]
+             if not sel:
+                 raise SystemExit(f"no trained models for {c!r}")
+-            jobs += [(c, r["path"], r["seed"], 0.0) for r in sel]
++            jobs += [(c, r["path"], r["seed"], 0.0, maxiter) for r in sel]
+     t0 = time.time()
+     out = []
+     # resume: keep runs that finished before an interruption
+@@ -108,17 +123,24 @@ def main(configs, workers=2, out_name="newer_models_to", n_seeds=None):
+             np.savez(os.path.join(RESULTS, out_name + ".npz"), labels=np.array([o["label"] for o in out]),
+                      seeds=np.array([o["seed"] for o in out]), X=np.array([o["x"] for o in out]))
+             save_json(out_name + ".json", [{k2: v for k2, v in o.items() if k2 != "x"} for o in out])
+-    print("summary (true compliance, mean ± 95% CI over trained seeds):")
++    print("summary (true compliance, mean ± 95% CI over runs; model error = surrogate's own compliance vs truth):")
+     for c in dict.fromkeys(o["label"] for o in out):
+-        v = [o["compliance_true"] for o in out if o["label"] == c]
+-        e = [o["model_error_pct"] for o in out if o["label"] == c]
++        sel = [o for o in out if o["label"] == c]
++        v = [o["compliance_true"] for o in sel]
++        es = error_summary([o["model_error_pct"] for o in sel])
+         m, sd, hw = mean_ci(v) if len(v) > 1 else (v[0], float("nan"), float("nan"))
+-        print(f"  {c:58s} n={len(v)} true {m:.3f} ± {hw:.3f}  model error {np.mean(e):+.2f} %")
++        line = (f"  {c:58s} n={len(v)} true {m:.3f} ± {hw:.3f}  model error: mean {es['mean_signed']:+.2f} %, "
++                f"mean |.| {es['mean_abs']:.2f} %, max |.| {es['max_abs']:.2f} %  "
++                f"volume {min(o['volume_fraction'] for o in sel):.5f}-{max(o['volume_fraction'] for o in sel):.5f}")
++        if all("compliance_true_at_target_volume" in o for o in sel):
++            vp = [o["compliance_true_at_target_volume"] for o in sel]
++            line += f"  true at target volume {np.mean(vp):.3f}"
++        print(line)
+ 
+ 
+ if __name__ == "__main__":
+     args = sys.argv[1:]
+-    workers, out_name, n_seeds = 2, "newer_models_to", None
++    workers, out_name, n_seeds, maxiter = 2, "newer_models_to", None, MAXITER
+     while args and args[0].startswith("--"):
+         k, v = args.pop(0)[2:].split("=")
+         if k == "workers":
+@@ -127,4 +149,6 @@ if __name__ == "__main__":
+             out_name = v
+         elif k == "seeds":
+             n_seeds = int(v)
+-    main(args, workers=workers, out_name=out_name, n_seeds=n_seeds)
++        elif k == "maxiter":
++            maxiter = int(v)
++    main(args, workers=workers, out_name=out_name, n_seeds=n_seeds, maxiter=maxiter)
+diff --git a/experiments/exp_published_long.py b/experiments/exp_published_long.py
+new file mode 100644
+index 0000000..d8f8b62
+--- /dev/null
++++ b/experiments/exp_published_long.py
+@@ -0,0 +1,71 @@
++"""How far does the published HBTO network get with more MMA iterations?
++(added 2026-11-18, see FIXES_2026-11-18.md)
++
++With the 3,000-iteration cap of exp_newer_models_to.py the published network
++never converges. This script runs the same formulation (MMA, consistent
++density filter, exact volume Jacobian, hole sizes in [0.01, 0.99]) for many
++more iterations and scores the design every ``every`` iterations with the
++mesh-converged reference, so the comparison with the newer networks can be
++made at more than one iteration budget.
++
++usage:  python exp_published_long.py [maxiter] [every]
++Output: results/published_long.json
++"""
++import os
++import sys
++import time
++
++import numpy as np
++
++sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
++from common import find_upstream, save_json, RESULTS  # noqa: E402
++
++from nnto.fea import mbb_half  # noqa: E402
++from nnto.materials import NNMaterial, SplineMaterial  # noqa: E402
++from nnto.networks import load_keras_mlp  # noqa: E402
++from nnto.scoring import hole_volume_fraction, project_volume  # noqa: E402
++from nnto.topopt import ComplianceProblem, run_mma  # noqa: E402
++
++
++def main(maxiter=30000, every=1000):
++    mesh = mbb_half()
++    g = np.load(os.path.join(RESULTS, "fitted_grid.npz"))
++    truth = SplineMaterial(g["grid"], g["C"])
++    net = load_keras_mlp(os.path.join(find_upstream(), "NN_model_HBTO_1e+04"))
++    mat = NNMaterial(net, "NNJ", predict_cast=None, clip="consistent")      # as in exp_newer_models_to.py
++    prob = ComplianceProblem(mesh, mat, kind="hole", filter="density", volume_jac_mode="exact")
++    snaps, count, model_compliance = [], [0], prob.compliance
++
++    def recording(x):                     # run_mma evaluates the objective once per iteration
++        c = model_compliance(x)
++        count[0] += 1
++        if count[0] % every == 0:
++            snaps.append((count[0], np.array(x, copy=True), c))
++        return c
++
++    prob.compliance = recording
++    t0 = time.time()
++    r = run_mma(prob, maxiter=maxiter, tol=1e-3, move=0.2, lb=0.01, ub=0.99)
++    if not snaps or snaps[-1][0] != r["nit"]:
++        snaps.append((r["nit"], r["x"].copy(), r["fun"]))
++    scorer = ComplianceProblem(mesh, truth, kind="hole", filter="none")
++    rows = []
++    for it, x, c_model in snaps:
++        X = x.reshape(-1, 2, order="F")
++        P = np.stack([mesh.H @ X[:, j] / mesh.Hs for j in range(2)], axis=1)
++        Pp, _ = project_volume(P, prob.volfrac, lb=0.01, ub=0.99)
++        c_true = scorer.compliance(P.flatten("F"))
++        rows.append(dict(iteration=int(it), compliance_model=float(c_model), compliance_true=c_true,
++                         model_error_pct=100 * (c_model / c_true - 1), volume_fraction=hole_volume_fraction(P),
++                         compliance_true_at_target_volume=scorer.compliance(Pp.flatten("F"))))
++        print(f"it {it:6d}: true {c_true:.3f} (at target volume {rows[-1]['compliance_true_at_target_volume']:.3f}) "
++              f"model {c_model:.3f} ({rows[-1]['model_error_pct']:+.2f} %) volume {rows[-1]['volume_fraction']:.5f}", flush=True)
++    out = dict(label="published", maxiter=maxiter, converged=r["converged"], nit=r["nit"],
++               seconds=time.time() - t0, trajectory=rows,
++               last_change=float(r["history"]["change"][-1]))
++    save_json("published_long.json", out)
++    print(f"converged {r['converged']} after {r['nit']} iterations, {time.time() - t0:.0f} s")
++
++
++if __name__ == "__main__":
++    main(*(int(a) for a in sys.argv[1:]))
+diff --git a/experiments/exp_surrogate_truth.py b/experiments/exp_surrogate_truth.py
+index bb3a63c..df17657 100644
+--- a/experiments/exp_surrogate_truth.py
++++ b/experiments/exp_surrogate_truth.py
+@@ -9,6 +9,17 @@ HBTO: two independent references that the paper did not have
+ Also re-evaluates the authors' *final HBTO designs* with both references to
+ see how much of the reported compliance is real.
+ 
++Fixes of 2026-11-18 (see FIXES_2026-11-18.md):
++  * the start-design sensitivity error of the network is now compared with the
++    paper's CFD-vs-NNJ MSE on the *same* basis.  The paper's Figs. 8 and 11
++    use filtered sensitivities (the authors' ``dc0`` is saved after
++    ``filterfun``); the earlier "1,160x" divided a raw-gradient MSE by that
++    filtered MSE.  Both bases are reported in ``sensitivity_bases``.
++  * the authors' designs have hole sides below 0.01, outside the converged
++    reference's range, which clamps them to a 1 % slit.  They are now also
++    scored with such holes counted as absent (solid), as in the authors' voxel
++    data.
++
+ Output: results/surrogate_truth.json
+ """
+ import os
+@@ -20,9 +31,10 @@ from scipy.io import loadmat
+ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+ from common import find_upstream, save_json, RESULTS  # noqa: E402
+ 
+-from nnto.fea import mbb_half  # noqa: E402
++from nnto.fea import C0_VEC_EXACT, mbb_half  # noqa: E402
+ from nnto.materials import NNMaterial, SplineMaterial, VoxelTableMaterial  # noqa: E402
+ from nnto.networks import load_keras_mlp  # noqa: E402
++from nnto.scoring import SmallHolesSolid, compare_vectors, sensitivity_bases  # noqa: E402
+ from nnto.topopt import ComplianceProblem  # noqa: E402
+ 
+ UP = find_upstream()
+@@ -129,9 +141,33 @@ def hbto():
+         sens_mse_nn_vs_truth=float(np.mean((g_nn - g_tr) ** 2)),
+         sens_rel_l2=float(np.linalg.norm(g_nn - g_tr) / np.linalg.norm(g_tr)),
+         sens_cosine=float(g_nn @ g_tr / np.linalg.norm(g_nn) / np.linalg.norm(g_tr)),
+-        sens_mse_cfd_f32_vs_nnj_paper=1.07e-4)
++        sens_mse_cfd_f32_vs_nnj_paper=1.07e-4,
++        note="sens_* above are on RAW gradients; the paper's 1.07e-4 is on FILTERED ones. "
++             "Use sensitivity_bases for like-for-like ratios.")
++
++    # --- network error vs derivative-method difference on matching bases (fix 2026-11-18)
++    nn64 = NNMaterial(net, "NNJ", predict_cast=None, clip="none")
++    pub_nnj = NNMaterial(net, "NNJ", predict_cast=np.float32, clip="original")      # as published
++    pub_cfd = NNMaterial(net, "CFD-f32", predict_cast=np.float32, clip="original")  # as published
++    S_nn, S_tr = sensitivity_bases(mesh, nn64, x0), sensitivity_bases(mesh, spl, x0)
++    S_nnj, S_cfd = sensitivity_bases(mesh, pub_nnj, x0), sensitivity_bases(mesh, pub_cfd, x0)
++    bases = {}
++    for b in ("raw", "filtered"):
++        net_err = compare_vectors(S_nn[b], S_tr[b])
++        meth = compare_vectors(S_cfd[b], S_nnj[b])
++        bases[b] = dict(network_vs_truth=net_err, cfd_vs_nnj_as_published=meth,
++                        mse_ratio=net_err["mse"] / meth["mse"],
++                        rel_l2_ratio=net_err["rel_l2"] / meth["rel_l2"])
++    a = np.load(os.path.join(RES, "HBTO_NN_result_dy1", "HBTO_NN_dy1_it1225final.npz"))["dc0"].ravel()
++    c = np.load(os.path.join(RES, "HBTO_NN_result_dy2", "HBTO_NN_dy2_it1105final.npz"))["dc0"].ravel()
++    bases["authors_stored_dc0"] = dict(
++        rel_diff_to_recomputed_filtered=float(np.linalg.norm(a - S_nnj["filtered"]) / np.linalg.norm(a)),
++        rel_diff_to_recomputed_raw=float(np.linalg.norm(a - S_nnj["raw"]) / np.linalg.norm(a)),
++        mse_cfd_vs_nnj=float(np.mean((c - a) ** 2)), paper_printed_mse=1.07e-4)
++    out["sensitivity_bases"] = bases
+ 
+     # --- the authors' final designs, re-evaluated
++    solid_small = SmallHolesSolid(spl, C0_VEC_EXACT)
+     fin = {"NNJ": (1, "it1225final"), "CFD": (2, "it1105final"), "CSM": (3, "it1371final"), "AD": (4, "it1342final")}
+     out["final_designs"] = {}
+     for name, (d, tag) in fin.items():
+@@ -141,11 +177,16 @@ def hbto():
+         c_nn = ComplianceProblem(mesh, NNMaterial(net, "NNJ"), kind="hole", filter="none").compliance(x)
+         c_vox = ComplianceProblem(mesh, vox, kind="hole", filter="none").compliance(x)
+         c_spl = ComplianceProblem(mesh, spl, kind="hole", filter="none").compliance(x)
++        c_sol = ComplianceProblem(mesh, solid_small, kind="hole", filter="none").compliance(x)
+         Craw = net.predict(X); Cc = np.minimum(np.maximum(Craw, 1e-9 * C0), C0)
+         out["final_designs"][name] = dict(
+             compliance_reported=float(z["comp"]), compliance_nn_recomputed=c_nn,
+             compliance_voxel_truth=c_vox, compliance_converged_truth=c_spl,
++            compliance_converged_truth_small_holes_solid=c_sol,
+             underestimate_vs_voxel_pct=100 * (c_vox / c_nn - 1), underestimate_vs_converged_pct=100 * (c_spl / c_nn - 1),
++            underestimate_vs_converged_small_holes_solid_pct=100 * (c_sol / c_nn - 1),
++            frac_cells_side_below_reference_range=float(np.mean(solid_small.mask(X))),
++            min_theta=float(X.min()),
+             volume_fraction=float(1 - np.mean(X[:, 0] * X[:, 1])),
+             frac_cells_clipped=float(np.mean(np.any((Craw < 1e-9 * C0) | (Craw > C0), axis=1))),
+             frac_cells_not_pd_after_clip=float(np.mean(Cc[:, 0] * Cc[:, 2] - Cc[:, 1] ** 2 <= 0)),
+@@ -169,8 +210,19 @@ def main():
+         print("      d/dth1 rel-rmse by component:", {c: round(r['d_dtheta1'][c]['rel_rmse'], 3) for c in COMP})
+     print("  admissibility:", h["admissibility"])
+     print("  initial design:", {k: (round(v, 5) if isinstance(v, float) else v) for k, v in h["initial_design"].items()})
++    print("  start-design sensitivities, network error vs derivative-method difference on the SAME basis:")
++    for b in ("raw", "filtered"):
++        s = h["sensitivity_bases"][b]
++        print(f"    {b:8s}: network vs truth MSE {s['network_vs_truth']['mse']:.4e} (rel L2 {s['network_vs_truth']['rel_l2']:.4f}) | "
++              f"CFD vs NNJ as published MSE {s['cfd_vs_nnj_as_published']['mse']:.4e} (rel L2 {s['cfd_vs_nnj_as_published']['rel_l2']:.4f}) | "
++              f"ratio {s['mse_ratio']:.0f}x in MSE, {s['rel_l2_ratio']:.1f}x in relative L2")
++    st = h["sensitivity_bases"]["authors_stored_dc0"]
++    print(f"    authors' stored dc0: differs from the recomputed filtered NNJ sensitivity by {st['rel_diff_to_recomputed_filtered']:.1e}, "
++          f"from the raw one by {st['rel_diff_to_recomputed_raw']:.2f}; stored CFD-vs-NNJ MSE {st['mse_cfd_vs_nnj']:.4e} (paper {st['paper_printed_mse']:.2e})")
+     for n, r in h["final_designs"].items():
+-        print(f"  final {n}: reported {r['compliance_reported']:.2f} | voxel truth {r['compliance_voxel_truth']:.2f} ({r['underestimate_vs_voxel_pct']:+.1f}%) | converged truth {r['compliance_converged_truth']:.2f} ({r['underestimate_vs_converged_pct']:+.1f}%) | clipped cells {100*r['frac_cells_clipped']:.1f}% | not PD {100*r['frac_cells_not_pd_after_clip']:.1f}% | slit cells {100*r['frac_slit_cells']:.1f}%")
++        print(f"  final {n}: reported {r['compliance_reported']:.2f} | voxel truth {r['compliance_voxel_truth']:.2f} ({r['underestimate_vs_voxel_pct']:+.1f}%) | converged truth {r['compliance_converged_truth']:.2f} ({r['underestimate_vs_converged_pct']:+.1f}%) | "
++              f"converged, sides < 0.01 solid {r['compliance_converged_truth_small_holes_solid']:.2f} ({r['underestimate_vs_converged_small_holes_solid_pct']:+.1f}%) | "
++              f"cells with a side < 0.01 {100*r['frac_cells_side_below_reference_range']:.1f}% | clipped cells {100*r['frac_cells_clipped']:.1f}% | not PD {100*r['frac_cells_not_pd_after_clip']:.1f}% | slit cells {100*r['frac_slit_cells']:.1f}%")
+ 
+ 
+ if __name__ == "__main__":
+diff --git a/experiments/gt_fitted_grid.py b/experiments/gt_fitted_grid.py
+index 6ee00fd..19bc80c 100644
+--- a/experiments/gt_fitted_grid.py
++++ b/experiments/gt_fitted_grid.py
+@@ -21,7 +21,8 @@ import numpy as np
+ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+ from nnto.homogenization import fitted_CH  # noqa: E402
+ 
+-OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "results")
++# honours NNTO_RESULTS like the other scripts (fix 2026-11-18)
++OUT = os.path.abspath(os.environ.get("NNTO_RESULTS", os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "results")))
+ SWAP = [2, 1, 0, 3]
+ 
+ 
+diff --git a/experiments/gt_offgrid.py b/experiments/gt_offgrid.py
+index e5c5f96..f23408c 100644
+--- a/experiments/gt_offgrid.py
++++ b/experiments/gt_offgrid.py
+@@ -17,7 +17,8 @@ from scipy.stats import qmc
+ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+ from nnto.homogenization import fitted_CH  # noqa: E402
+ 
+-OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "results")
++# honours NNTO_RESULTS like the other scripts (fix 2026-11-18)
++OUT = os.path.abspath(os.environ.get("NNTO_RESULTS", os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "results")))
+ 
+ 
+ def main(n=300, seed=7, levels=(16, 32), beta=2.5):
+diff --git a/experiments/gt_voxel_lattice.py b/experiments/gt_voxel_lattice.py
+index 1745a71..31e562a 100644
+--- a/experiments/gt_voxel_lattice.py
++++ b/experiments/gt_voxel_lattice.py
+@@ -16,7 +16,8 @@ import numpy as np
+ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+ from nnto.homogenization import voxel_CH, plane_strain_C  # noqa: E402
+ 
+-OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "results")
++# honours NNTO_RESULTS like the other scripts (fix 2026-11-18)
++OUT = os.path.abspath(os.environ.get("NNTO_RESULTS", os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "results")))
+ 
+ 
+ def main(nel=100):
+diff --git a/experiments/make_comparison_figure.py b/experiments/make_comparison_figure.py
+index 0926a58..92f7dfe 100644
+--- a/experiments/make_comparison_figure.py
++++ b/experiments/make_comparison_figure.py
+@@ -27,7 +27,8 @@ from nnto.networks import load_keras_mlp, load_network  # noqa: E402
+ from nnto.topopt import ComplianceProblem  # noqa: E402
+ 
+ UP = find_upstream()
+-FIG = os.path.join(ROOT, "reports", "figures")
++# NNTO_FIGURES redirects the figures, e.g. for a verification rerun (added 2026-11-18)
++FIG = os.path.abspath(os.environ.get("NNTO_FIGURES", os.path.join(ROOT, "reports", "figures")))
+ os.makedirs(FIG, exist_ok=True)
+ SURFACE, INK, INK2, GRID = "#fcfcfb", "#0b0b0b", "#52514e", "#e4e3de"
+ BLUE, ORANGE = "#2a78d6", "#eb6834"
+diff --git a/experiments/make_figures.py b/experiments/make_figures.py
+index 712c2ef..9ce6214 100644
+--- a/experiments/make_figures.py
++++ b/experiments/make_figures.py
+@@ -17,7 +17,8 @@ from nnto.materials import SimpMaterial  # noqa: E402
+ from nnto.networks import load_keras_mlp  # noqa: E402
+ from nnto.topopt import ComplianceProblem  # noqa: E402
+ 
+-FIG = os.path.join(ROOT, "reports", "figures")
++# NNTO_FIGURES redirects the figures, e.g. for a verification rerun (added 2026-11-18)
++FIG = os.path.abspath(os.environ.get("NNTO_FIGURES", os.path.join(ROOT, "reports", "figures")))
+ os.makedirs(FIG, exist_ok=True)
+ SURFACE, INK, INK2, GRID = "#fcfcfb", "#0b0b0b", "#52514e", "#e4e3de"
+ BLUE, ORANGE, AQUA = "#2a78d6", "#eb6834", "#1baf7a"
+@@ -94,7 +95,11 @@ def fig_dbto_runs():
+              "CFD (as published)": "DBTO_NN_result_dy2/DBTO_NN_dy2.npz", "CSM": "DBTO_NN_result_dy3/DBTO_NN_dy3.npz",
+              "AD": "DBTO_NN_result_dy4/DBTO_NN_dy4.npz"}
+     paper_true = {k: true.compliance(np.load(os.path.join(res, v))["xopt"].flatten("F")) for k, v in paper.items()}
+-    z1 = np.load(os.path.join(RESULTS, "dbto_ensemble_part1.npz")); z2 = np.load(os.path.join(RESULTS, "dbto_part2.npz"))
++    # the shipped results kept the first 8 runs of an interrupted ensemble in dbto_ensemble_part1.npz;
++    # a complete rerun writes dbto_ensemble.npz (fallback added 2026-11-18)
++    p1 = os.path.join(RESULTS, "dbto_ensemble_part1.npz")
++    z1 = np.load(p1 if os.path.exists(p1) else os.path.join(RESULTS, "dbto_ensemble.npz"))
++    z2 = np.load(os.path.join(RESULTS, "dbto_part2.npz"))
+     lab = np.concatenate([z1["labels"], z2["labels"]]); ct = np.concatenate([z1["comp_true"], z2["comp_true"]])
+     mine = {"Exact SIMP": "SIMP", "NNJ": "NNJ", "CFD (as published)": "CFD-f32", "CSM": "CSM", "AD": "AD-rev",
+             "CFD (double precision)": "CFD"}
+@@ -124,16 +129,36 @@ def fig_dbto_runs():
+ 
+ 
+ def fig_hbto_reported_vs_true():
+-    d = load("surrogate_truth.json")["HBTO"]["final_designs"]
+-    names = list(d)
+-    rep = [d[n]["compliance_reported"] for n in names]; tru = [d[n]["compliance_converged_truth"] for n in names]
++    # Since 2026-11-18: if results/final_designs_rescored.json exists, the orange bar is the
++    # conservative value (hole sides below 0.01 counted as solid, as in the authors' voxel
++    # data) and the whisker reaches the value with such sides scored as thin slits.
++    p = os.path.join(RESULTS, "final_designs_rescored.json")
++    if os.path.exists(p):
++        d = json.load(open(p))["authors_designs"]
++        names = list(d)
++        rep = [d[n]["reported"] for n in names]
++        tru = [d[n]["converged_solid"] for n in names]; hi = [d[n]["converged_slit"] for n in names]
++        lab = "same design, mesh-converged model (bar: holes < 1 % solid; whisker: as thin slits)"
++    else:
++        d = load("surrogate_truth.json")["HBTO"]["final_designs"]
++        names = list(d)
++        rep = [d[n]["compliance_reported"] for n in names]; tru = [d[n]["compliance_converged_truth"] for n in names]
++        hi = None
++        lab = "same design, mesh-converged material model"
+     fig, ax = plt.subplots(figsize=(6.6, 4.2), dpi=160)
+     x = np.arange(len(names)); w = 0.3
+     b1 = ax.bar(x - w / 2 - 0.02, rep, w, color=BLUE, label="reported (evaluated by the surrogate)")
+-    b2 = ax.bar(x + w / 2 + 0.02, tru, w, color=ORANGE, label="same design, mesh-converged material model")
+-    for bars in (b1, b2):
+-        for b in bars:
+-            ax.text(b.get_x() + b.get_width() / 2, b.get_height() + 1.0, f"{b.get_height():.1f}", ha="center", fontsize=8.5, color=INK)
++    b2 = ax.bar(x + w / 2 + 0.02, tru, w, color=ORANGE, label=lab)
++    if hi is not None:
++        for b, h in zip(b2, hi):
++            xc = b.get_x() + b.get_width() / 2
++            ax.plot([xc, xc], [b.get_height(), h], color=INK, lw=1.2)
++            ax.plot([xc - 0.05, xc + 0.05], [h, h], color=INK, lw=1.2)
++    for k, bars in enumerate((b1, b2)):
++        for j, b in enumerate(bars):
++            top = b.get_height() if (k == 0 or hi is None) else hi[j]
++            txt = f"{b.get_height():.1f}" if (k == 0 or hi is None) else f"{b.get_height():.1f}-{hi[j]:.1f}"
++            ax.text(b.get_x() + b.get_width() / 2, top + 1.0, txt, ha="center", fontsize=8.5, color=INK)
+     ax.set_xticks(x); ax.set_xticklabels(names); ax.tick_params(axis="x", length=0)
+     ax.set_ylabel("compliance"); ax.set_ylim(0, 100); ax.grid(axis="x", visible=False)
+     ax.set_title("Homogenization-based designs: reported vs true compliance")
+diff --git a/experiments/rescore_final_designs.py b/experiments/rescore_final_designs.py
+new file mode 100644
+index 0000000..d3a8051
+--- /dev/null
++++ b/experiments/rescore_final_designs.py
+@@ -0,0 +1,183 @@
++"""Re-score every saved final HBTO design and produce the final comparison
++numbers (added 2026-11-18, see FIXES_2026-11-18.md).
++
++Nothing is re-optimised: the designs are the ones already saved in results/
++(to_baselines.npz, newer_models_to*.npz) and in the authors' repository.
++
++For the authors' four published designs:
++    reported compliance, the network's recomputed value, the voxel model,
++    the converged reference (sides below 0.01 clamped to a 1 % slit), and the
++    converged reference with sides below 0.01 counted as solid.
++
++For every MMA run:
++    true compliance (recomputed and checked against the stored value), the
++    volume fraction and its violation, and the true compliance after scaling
++    both hole fields to the exact volume target.
++
++Summaries report the mean absolute model error as well as the signed mean.
++
++usage:  python rescore_final_designs.py
++Output: results/final_designs_rescored.json
++"""
++import json
++import os
++import sys
++
++import numpy as np
++from scipy import stats
++
++sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
++from common import RESULTS, find_upstream, mean_ci, save_json  # noqa: E402
++
++from nnto.fea import C0_VEC_EXACT, mbb_half  # noqa: E402
++from nnto.materials import NNMaterial, SplineMaterial, VoxelTableMaterial  # noqa: E402
++from nnto.networks import load_keras_mlp  # noqa: E402
++from nnto.scoring import SmallHolesSolid, error_summary, hole_volume_fraction, project_volume  # noqa: E402
++from nnto.topopt import ComplianceProblem  # noqa: E402
++
++UP = find_upstream()
++RES = os.path.join(UP, "JMD Journal Paper Results")
++RUN_FILES = ["to_baselines", "newer_models_to", "newer_models_to2", "newer_models_to3", "newer_models_to4"]
++IMPROVED = "Deep MLP 3x64 tanh | converged + Sobolev"
++VOLFRAC = 0.5
++
++
++def stat(v):
++    v = [float(a) for a in v]
++    m, sd, hw = mean_ci(v) if len(v) > 1 else (v[0], float("nan"), float("nan"))
++    return dict(mean=m, sd=sd, ci95=hw, min=min(v), max=max(v), n=len(v), values=v)
++
++
++def welch(a, b):
++    """Welch test and 95 % CI of mean(a) - mean(b)."""
++    a, b = np.asarray(a, float), np.asarray(b, float)
++    va, vb = a.var(ddof=1) / a.size, b.var(ddof=1) / b.size
++    df = (va + vb) ** 2 / (va ** 2 / (a.size - 1) + vb ** 2 / (b.size - 1))
++    d = a.mean() - b.mean()
++    hw = stats.t.ppf(0.975, df) * np.sqrt(va + vb)
++    return dict(diff=float(d), ci95=[float(d - hw), float(d + hw)], df=float(df),
++                p=float(stats.ttest_ind(a, b, equal_var=False).pvalue))
++
++
++def main():
++    mesh = mbb_half()
++    g = np.load(os.path.join(RESULTS, "fitted_grid.npz"))
++    v = np.load(os.path.join(RESULTS, "voxel_lattice.npz"))
++    spl = SplineMaterial(g["grid"], g["C"])
++    vox = VoxelTableMaterial(v["grid"], v["C"])
++    solid = SmallHolesSolid(spl, C0_VEC_EXACT)
++    score = lambda mat, x: ComplianceProblem(mesh, mat, kind="hole", filter="none").compliance(x)
++    out = {}
++
++    # --- the authors' published designs
++    net = load_keras_mlp(os.path.join(UP, "NN_model_HBTO_1e+04"))
++    fin = {"NNJ": (1, "it1225final"), "CFD": (2, "it1105final"), "CSM": (3, "it1371final"), "AD": (4, "it1342final")}
++    auth = {}
++    for name, (d, tag) in fin.items():
++        z = np.load(os.path.join(RES, f"HBTO_NN_result_dy{d}", f"HBTO_NN_dy{d}_{tag}.npz"))
++        x = np.concatenate([z["xopt1"].flatten("F"), z["xopt2"].flatten("F")])
++        X = x.reshape(-1, 2, order="F")
++        r = dict(reported=float(z["comp"]), network_recomputed=score(NNMaterial(net, "NNJ"), x),
++                 voxel=score(vox, x), converged_slit=score(spl, x), converged_solid=score(solid, x),
++                 iterations=int(z["niter"]), volume_fraction=hole_volume_fraction(X),
++                 frac_cells_side_below_0p01=float(np.mean(solid.mask(X))), min_theta=float(X.min()))
++        for k in ("voxel", "converged_slit", "converged_solid"):
++            r[f"{k}_vs_reported_pct"] = 100 * (r[k] / r["reported"] - 1)
++            r[f"network_error_vs_{k}_pct"] = 100 * (r["reported"] / r[k] - 1)
++        auth[name] = r
++    out["authors_designs"] = auth
++
++    # --- every MMA run saved in results/
++    runs = []
++    for f in RUN_FILES:
++        pj, pz = os.path.join(RESULTS, f + ".json"), os.path.join(RESULTS, f + ".npz")
++        if not (os.path.exists(pj) and os.path.exists(pz)):
++            continue
++        meta, z = json.load(open(pj)), np.load(pz)
++        for m, lab, seed, x in zip(meta, z["labels"], z["seeds"], z["X"]):
++            assert m["label"] == str(lab) and m["seed"] == int(seed), (f, m["label"], lab)
++            Xd = x.reshape(-1, 2, order="F")
++            P = np.stack([mesh.H @ Xd[:, j] / mesh.Hs for j in range(2)], axis=1)
++            c_true = score(spl, P.flatten("F"))
++            Pp, s = project_volume(P, VOLFRAC, lb=0.01, ub=0.99)
++            vf = hole_volume_fraction(P)
++            runs.append(dict(file=f, label=m["label"], seed=m["seed"], noise=m.get("noise", 0.0),
++                             true_stored=m["compliance_true"], true=c_true,
++                             recompute_rel_diff=abs(c_true / m["compliance_true"] - 1),
++                             surrogate=m["compliance_model"], model_error_pct=m["model_error_pct"],
++                             nit=m["nit"], converged=m["converged"], volume_fraction=vf,
++                             volume_violation=vf - VOLFRAC, projection_scale=s,
++                             true_at_target_volume=score(spl, Pp.flatten("F")),
++                             volume_after_projection=hole_volume_fraction(Pp)))
++    by = {}
++    for lab in dict.fromkeys(r["label"] for r in runs):
++        sel = [r for r in runs if r["label"] == lab]
++        by[lab] = dict(n=len(sel), true=stat([r["true"] for r in sel]),
++                       true_at_target_volume=stat([r["true_at_target_volume"] for r in sel]),
++                       model_error=error_summary([r["model_error_pct"] for r in sel]),
++                       iterations=[r["nit"] for r in sel], converged=sum(r["converged"] for r in sel),
++                       volume_fraction=[min(r["volume_fraction"] for r in sel), max(r["volume_fraction"] for r in sel)])
++    out["mma_runs"] = dict(runs=runs, by_label=by,
++                           max_recompute_rel_diff=max(r["recompute_rel_diff"] for r in runs))
++
++    # --- headline comparisons
++    ref = by["reference"]["true"]["mean"]
++    pub = [r for r in runs if r["label"] == "published"]
++    imp = [r for r in runs if r["label"] == IMPROVED]
++    head = {"reference_optimum": ref}
++    for key in ("true", "true_at_target_volume"):
++        a, b = [r[key] for r in pub], [r[key] for r in imp]
++        on_target = min(pub, key=lambda r: abs(r["volume_violation"]))[key]
++        head[key] = dict(published=stat(a), improved=stat(b), welch_published_minus_improved=welch(a, b),
++                         pct_lower_vs_published_mean=100 * (1 - np.mean(b) / np.mean(a)),
++                         pct_lower_vs_published_on_target_run=100 * (1 - np.mean(b) / on_target),
++                         improved_vs_reference_pct=[100 * (c / ref - 1) for c in b])
++    best = {k: min(auth[n][k] for n in auth) for k in ("voxel", "converged_slit", "converged_solid")}
++    head["vs_authors_best_design"] = {k: dict(authors_best=best[k],
++                                              pct_lower=100 * (1 - head["true"]["improved"]["mean"] / best[k]))
++                                      for k in best}
++    head["vs_authors_designs_range_pct_lower"] = {
++        k: [100 * (1 - head["true"]["improved"]["mean"] / max(auth[n][k] for n in auth)),
++            100 * (1 - head["true"]["improved"]["mean"] / min(auth[n][k] for n in auth))] for k in best}
++    e_imp = error_summary([r["model_error_pct"] for r in imp])
++    e_auth = {k: auth["NNJ"][f"network_error_vs_{k}_pct"] for k in best}
++    head["model_error"] = dict(authors_NNJ_design=e_auth, improved=e_imp,
++                               ratio_vs_max_abs={k: abs(e) / e_imp["max_abs"] for k, e in e_auth.items()},
++                               ratio_vs_mean_abs={k: abs(e) / e_imp["mean_abs"] for k, e in e_auth.items()})
++    head["gap_closed_pct"] = {lab: 100 * (by["published"]["true"]["mean"] - s["true"]["mean"])
++                              / (by["published"]["true"]["mean"] - ref) for lab, s in by.items()}
++    out["headline"] = head
++    save_json("final_designs_rescored.json", out)
++
++    # --- console
++    print("Authors' published HBTO designs (compliance; % vs the value reported in the paper)")
++    for n, r in auth.items():
++        print(f"  {n:4s} reported {r['reported']:.2f} | voxel {r['voxel']:.2f} ({r['voxel_vs_reported_pct']:+.1f}%) | "
++              f"converged, sides<0.01 as slits {r['converged_slit']:.2f} ({r['converged_slit_vs_reported_pct']:+.1f}%) | "
++              f"converged, sides<0.01 solid {r['converged_solid']:.2f} ({r['converged_solid_vs_reported_pct']:+.1f}%) | "
++              f"cells with a side<0.01 {100 * r['frac_cells_side_below_0p01']:.1f}% | volume {r['volume_fraction']:.5f}")
++    print(f"\nMMA runs: {len(runs)} re-scored; largest difference to the stored true compliance {out['mma_runs']['max_recompute_rel_diff']:.1e}")
++    print(f"{'surrogate':58s} {'n':>2s} {'true':>16s} {'at target vol.':>15s} {'err':>7s} {'|err|':>6s} {'max':>6s} {'conv':>5s} {'volume':>17s}")
++    for lab, s in by.items():
++        print(f"{lab:58s} {s['n']:2d} {s['true']['mean']:8.3f} ± {s['true']['ci95']:.3f} {s['true_at_target_volume']['mean']:15.3f} "
++              f"{s['model_error']['mean_signed']:+6.2f}% {s['model_error']['mean_abs']:5.2f}% {s['model_error']['max_abs']:5.2f}% "
++              f"{s['converged']:2d}/{s['n']:<2d} {s['volume_fraction'][0]:.5f}-{s['volume_fraction'][1]:.5f}")
++    print("\nHeadline (improved = deep 3x64 tanh MLP, converged data + derivative labels):")
++    for key in ("true", "true_at_target_volume"):
++        h = head[key]; w = h["welch_published_minus_improved"]
++        print(f"  {key:22s}: published {h['published']['mean']:.3f} vs improved {h['improved']['mean']:.3f}; "
++              f"{h['pct_lower_vs_published_mean']:.2f}% lower ({h['pct_lower_vs_published_on_target_run']:.2f}% vs the on-target run); "
++              f"gap {w['diff']:.3f}, 95% CI {w['ci95'][0]:.2f}-{w['ci95'][1]:.2f}, Welch p {w['p']:.1e}; "
++              f"vs reference {', '.join(f'{c:+.3f}%' for c in h['improved_vs_reference_pct'])}")
++    for k, d in head["vs_authors_best_design"].items():
++        lo, hi = head["vs_authors_designs_range_pct_lower"][k]
++        print(f"  vs authors' best design ({k}): {d['authors_best']:.3f} -> {d['pct_lower']:.2f}% lower (all four designs: {lo:.2f}-{hi:.2f}%)")
++    me = head["model_error"]
++    print(f"  model error: authors' NNJ design {', '.join(f'{k} {e:+.2f}%' for k, e in me['authors_NNJ_design'].items())}; "
++          f"improved mean {me['improved']['mean_signed']:+.3f}%, mean |.| {me['improved']['mean_abs']:.3f}%, max |.| {me['improved']['max_abs']:.3f}%; "
++          f"ratio {min(me['ratio_vs_max_abs'].values()):.0f}-{max(me['ratio_vs_mean_abs'].values()):.0f}x")
++    print("  share of the published -> reference gap closed:", {k: round(v, 1) for k, v in head["gap_closed_pct"].items()})
++
++
++if __name__ == "__main__":
++    main()
+diff --git a/nnto/scoring.py b/nnto/scoring.py
+new file mode 100644
+index 0000000..4f22f69
+--- /dev/null
++++ b/nnto/scoring.py
+@@ -0,0 +1,132 @@
++"""Scoring helpers for final designs and sensitivity comparisons (added 2026-11-18).
++
++They make four choices explicit that earlier versions of the experiment
++scripts left implicit:
++
++``sensitivity_bases`` / ``compare_vectors``
++    The paper's Fig. 8 and Fig. 11 sensitivity MSEs are computed on *filtered*
++    sensitivities: the authors' ``dc0`` is the output of ``dfeafun``, i.e. it
++    is saved after ``filterfun``.  Any ratio against those MSEs must use the
++    same basis.  (The earlier "1,160x" figure divided a raw-gradient MSE by the
++    paper's filtered one.)
++
++``SmallHolesSolid``
++    The converged reference is tabulated on [0.01, 0.99] and clamps inputs
++    outside that range, so a hole side below 0.01 is scored as a 1 % slit,
++    which is much softer than solid.  The authors' voxel data (and their
++    plotting, which snaps sides within 7.5 % of a bound) count such a hole as
++    absent.  Designs that stay inside [0.01, 0.99] are not affected.
++
++``project_volume``
++    Runs stopped by an iteration cap can end slightly off the volume target.
++    Scaling both hole fields by one factor restores the target exactly, so
++    that designs can also be compared at equal material.
++
++``error_summary``
++    Signed errors of opposite sign cancel in a mean.  Report the mean absolute
++    and the largest absolute error as well.
++"""
++from __future__ import annotations
++
++import numpy as np
++
++__all__ = ["SmallHolesSolid", "hole_volume_fraction", "project_volume",
++           "error_summary", "compare_vectors", "sensitivity_bases"]
++
++
++class SmallHolesSolid:
++    """Wrap a reference material: cells whose smaller hole side is below ``lo``
++    (default: the lower end of the reference's tabulated range) get the solid
++    tensor ``C_solid`` and a zero derivative."""
++    nvar = 2
++
++    def __init__(self, base, C_solid, lo=None):
++        self.base = base
++        self.C_solid = np.asarray(C_solid, dtype=float)
++        self.lo = float(base.lo if lo is None else lo)
++
++    def mask(self, theta):
++        x = np.asarray(theta, dtype=float).reshape(-1, 2)
++        return x.min(axis=1) < self.lo
++
++    def evaluate(self, theta):
++        x = np.asarray(theta, dtype=float).reshape(-1, 2)
++        C, dC = self.base.evaluate(x)
++        m = self.mask(x)
++        C = np.array(C, dtype=float, copy=True)
++        dC = np.array(dC, dtype=float, copy=True)
++        C[m] = self.C_solid
++        dC[m] = 0.0
++        return C, dC
++
++
++def hole_volume_fraction(P) -> float:
++    """Solid fraction 1 - mean(theta1 * theta2) of a hole design, P (ne, 2)."""
++    P = np.asarray(P, dtype=float).reshape(-1, 2)
++    return float(1.0 - np.mean(P[:, 0] * P[:, 1]))
++
++
++def project_volume(P, volfrac, lb=0.0, ub=1.0, tol=1e-14, maxit=200):
++    """Scale both hole fields by one factor s (then clip to [lb, ub]) so that
++    the solid fraction equals ``volfrac``.  Returns (P_projected, s).
++
++    A design that already meets the target (to ``tol``) is returned unchanged
++    with s = 1."""
++    P = np.asarray(P, dtype=float).reshape(-1, 2)
++    target = 1.0 - volfrac                       # required mean(theta1 * theta2)
++
++    def f(s):
++        Q = np.clip(s * P, lb, ub)
++        return float(np.mean(Q[:, 0] * Q[:, 1]) - target)
++
++    f1 = f(1.0)
++    if abs(f1) <= tol:
++        return P.copy(), 1.0
++    if f1 > 0:                                   # too little material: shrink holes
++        lo_s, hi_s = 0.5, 1.0
++        while f(lo_s) > 0 and lo_s > 1e-6:
++            lo_s *= 0.5
++    else:                                        # too much material: grow holes
++        lo_s, hi_s = 1.0, 2.0
++        while f(hi_s) < 0 and hi_s < 1e6:
++            hi_s *= 2.0
++    for _ in range(maxit):
++        mid = 0.5 * (lo_s + hi_s)
++        if f(mid) > 0:
++            hi_s = mid
++        else:
++            lo_s = mid
++        if hi_s - lo_s <= 1e-15 * max(1.0, hi_s):
++            break
++    s = 0.5 * (lo_s + hi_s)
++    return np.clip(s * P, lb, ub), float(s)
++
++
++def error_summary(errors) -> dict:
++    """Signed mean, mean absolute and largest absolute value of ``errors``."""
++    e = np.asarray(errors, dtype=float).ravel()
++    return dict(mean_signed=float(e.mean()), mean_abs=float(np.abs(e).mean()),
++                max_abs=float(np.abs(e).max()), n=int(e.size))
++
++
++def compare_vectors(a, b) -> dict:
++    """MSE, relative L2 error (w.r.t. ``b``) and cosine between two vectors."""
++    a = np.asarray(a, dtype=float).ravel()
++    b = np.asarray(b, dtype=float).ravel()
++    d = a - b
++    return dict(mse=float(np.mean(d ** 2)),
++                rel_l2=float(np.linalg.norm(d) / np.linalg.norm(b)),
++                cosine=float(a @ b / (np.linalg.norm(a) * np.linalg.norm(b))))
++
++
++def sensitivity_bases(mesh, material, x, kind="hole") -> dict:
++    """Compliance sensitivities at ``x`` on two bases:
++
++    raw       d(compliance)/d(physical variable), no filter
++    filtered  after the authors' heuristic sensitivity filter (``filterfun``
++              with ft = 1), which is what the paper's Figs. 8 and 11 compare
++    """
++    from .topopt import ComplianceProblem
++    raw = ComplianceProblem(mesh, material, kind=kind, filter="none").raw_gradient(x)
++    filt = ComplianceProblem(mesh, material, kind=kind, filter="sensitivity").gradient(x)
++    return dict(raw=np.asarray(raw, dtype=float), filtered=np.asarray(filt, dtype=float))
+diff --git a/reports/part3_gaps.md b/reports/part3_gaps.md
+index e535081..b69a44f 100644
+--- a/reports/part3_gaps.md
++++ b/reports/part3_gaps.md
+@@ -39,7 +39,7 @@ Each gap lists the evidence in the paper, the supporting literature, why it is o
+ 
+ * **Evidence in the paper.** Sec. 4.3: no ground truth for HBTO; conclusions "based only on the numerical approximations provided by the four derivative methods". Sec. 4.1: "no derivative information on the feature sets was provided".
+ * **Literature.** White et al. (2019) trained with a Sobolev norm for this reason; Black & Najafi (2023) compared network derivatives with FEM shape sensitivities. Neither the paper nor, as far as the abstracts show, its follow-up quantifies how the *choice of differentiation method* compares with *surrogate derivative error*.
+-* **Measured here.** For the published HBTO model the MSE between CFD and NNJ initial sensitivities is 1.07e-4 (and is itself a float32 artefact); the MSE between NNJ and the true sensitivities is 0.125 — about 1,160 times larger. Relative RMS error of the surrogate Jacobian: 78 % (domain), 15 % (interior). A Sobolev-trained admissible network reaches 1.4 % / 0.7 %.
++* **Measured here.** For the published HBTO model the MSE between CFD and NNJ initial sensitivities is 1.07e-4 (and is itself a float32 artefact); on the same filtered sensitivities, the MSE between NNJ and the true sensitivities is 0.064 — about 600 times larger (25 % vs 1.3 % relative). On raw gradients: 0.125 vs 2.8e-4, 444 times. (Corrected 18 November 2026: an earlier "1,160 times" mixed the two bases.) Relative RMS error of the surrogate Jacobian: 78 % (domain), 15 % (interior). A Sobolev-trained admissible network reaches 1.4 % / 0.7 %.
+ * **Status.** Research opportunity with verified evidence. The ingredients (Sobolev loss, constrained heads, shape-sensitivity references) exist separately; a controlled study that ranks the *sources* of sensitivity error for NN-based TO and follows them to the true compliance of the final design was not found.
+ 
+ ### Gap 2 — No noise floor: single-run comparisons of optimization paths
+diff --git a/tests/test_scoring.py b/tests/test_scoring.py
+new file mode 100644
+index 0000000..b281146
+--- /dev/null
++++ b/tests/test_scoring.py
+@@ -0,0 +1,100 @@
++"""Tests for nnto.scoring and the fixes of 2026-11-18 (FIXES_2026-11-18.md)."""
++import os
++
++import numpy as np
++import pytest
++
++from nnto.fea import C0_VEC_EXACT, mbb_half
++from nnto.materials import NNMaterial
++from nnto.scoring import (SmallHolesSolid, compare_vectors, error_summary, hole_volume_fraction,
++                          project_volume, sensitivity_bases)
++
++
++# ----------------------------------------------------------------- volume
++def test_project_volume_hits_target(rng):
++    P = rng.uniform(0.05, 0.95, size=(1800, 2))
++    for target in (0.3, 0.5, 0.7):
++        Q, s = project_volume(P, target, lb=0.01, ub=0.99)
++        assert abs(hole_volume_fraction(Q) - target) < 1e-12
++        assert np.all((Q >= 0.01) & (Q <= 0.99))
++        # one common factor for both fields wherever no bound is active
++        inside = (s * P > 0.01) & (s * P < 0.99)
++        assert np.allclose(Q[inside], s * P[inside])
++
++
++def test_project_volume_leaves_feasible_design_unchanged():
++    P = np.full((100, 2), np.sqrt(0.5))
++    Q, s = project_volume(P, 0.5)
++    assert s == 1.0 and np.array_equal(Q, P)
++
++
++def test_project_volume_direction():
++    # too little material (holes too large) -> holes shrink, and vice versa
++    P = np.full((10, 2), 0.72)                      # solid fraction 1 - 0.5184 = 0.4816 < 0.5
++    _, s = project_volume(P, 0.5)
++    assert s < 1
++    P = np.full((10, 2), 0.70)                      # 1 - 0.49 = 0.51 > 0.5
++    _, s = project_volume(P, 0.5)
++    assert s > 1
++
++
++# ------------------------------------------------------------ error summary
++def test_error_summary_does_not_let_signs_cancel():
++    e = error_summary([0.027, 0.0002, -0.079])     # the improved network's three runs (%)
++    assert e["mean_signed"] == pytest.approx(-0.0173, abs=1e-4)
++    assert e["mean_abs"] == pytest.approx(0.0354, abs=1e-4)
++    assert e["max_abs"] == pytest.approx(0.079)
++    assert e["mean_abs"] >= abs(e["mean_signed"])
++
++
++def test_compare_vectors():
++    b = np.array([1.0, 2.0, 2.0])
++    r = compare_vectors(1.1 * b, b)
++    assert r["rel_l2"] == pytest.approx(0.1)
++    assert r["cosine"] == pytest.approx(1.0)
++    assert r["mse"] == pytest.approx(np.mean((0.1 * b) ** 2))
++
++
++# ------------------------------------------------- small-hole convention
++class _Slit:
++    """Toy reference on [0.01, 0.99]: clamps like SplineMaterial and is much
++    softer than solid when one side is at the lower end (a thin slit)."""
++    lo, hi = 0.01, 0.99
++
++    def evaluate(self, theta):
++        x = np.clip(np.asarray(theta, float).reshape(-1, 2), self.lo, self.hi)
++        f = (1 - x[:, :1]) * (1 - x[:, 1:]) * (1 - 0.4 * (x.min(axis=1, keepdims=True) <= self.lo))
++        return f * C0_VEC_EXACT, np.zeros((x.shape[0], 4, 2))
++
++
++def test_small_holes_solid_convention():
++    base = _Slit()
++    m = SmallHolesSolid(base, C0_VEC_EXACT)
++    th = np.array([[0.005, 0.5],     # side below the range: slit under clamping, solid here
++                   [0.01, 0.5],      # at the range: unchanged
++                   [0.3, 0.4]])      # interior: unchanged
++    C, dC = m.evaluate(th)
++    Cb, _ = base.evaluate(th)
++    assert np.allclose(C[0], C0_VEC_EXACT) and np.all(dC[0] == 0)
++    assert np.all(Cb[0] < C0_VEC_EXACT)
++    assert np.allclose(C[1:], Cb[1:])
++    assert m.mask(th).tolist() == [True, False, False]
++
++
++# ------------------------- the paper's Fig. 11 MSE is on FILTERED sensitivities
++def test_stored_dc0_is_the_filtered_sensitivity(hbto_net, paper_results):
++    """The authors save dc0 = dfeafun(x0), which returns the sensitivity AFTER
++    filterfun.  So the paper's 1.07e-4 (Fig. 11) is a filtered-basis MSE and a
++    network-error MSE must be put on the same basis before taking a ratio."""
++    mesh = mbb_half()
++    x0 = np.full(2 * mesh.ne, np.sqrt(0.5))
++    nnj = sensitivity_bases(mesh, NNMaterial(hbto_net, "NNJ", predict_cast=np.float32, clip="original"), x0)
++    cfd = sensitivity_bases(mesh, NNMaterial(hbto_net, "CFD-f32", predict_cast=np.float32, clip="original"), x0)
++    a = np.load(os.path.join(paper_results, "HBTO_NN_result_dy1", "HBTO_NN_dy1_it1225final.npz"))["dc0"].ravel()
++    c = np.load(os.path.join(paper_results, "HBTO_NN_result_dy2", "HBTO_NN_dy2_it1105final.npz"))["dc0"].ravel()
++    assert np.linalg.norm(a - nnj["filtered"]) / np.linalg.norm(a) < 1e-5
++    assert np.linalg.norm(a - nnj["raw"]) / np.linalg.norm(a) > 0.5
++    # the published CFD-vs-NNJ MSE is reproduced on the filtered basis only
++    assert compare_vectors(cfd["filtered"], nnj["filtered"])["mse"] == pytest.approx(1.07e-4, rel=0.01)
++    assert compare_vectors(c, a)["mse"] == pytest.approx(1.07e-4, rel=0.01)
++    assert compare_vectors(cfd["raw"], nnj["raw"])["mse"] > 2 * 1.07e-4

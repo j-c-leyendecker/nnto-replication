@@ -1,0 +1,102 @@
+[
+ {
+  "name": "CFD published",
+  "noise": 0.0,
+  "seed": 0,
+  "comp": 80.8486,
+  "true": 80.77,
+  "nit": 276,
+  "msg": "`gtol`",
+  "seconds": 2652.0845
+ },
+ {
+  "name": "CFD patched",
+  "noise": 0.0,
+  "seed": 0,
+  "comp": 80.9016,
+  "true": 80.8227,
+  "nit": 304,
+  "msg": "`gtol`",
+  "seconds": 2679.162
+ },
+ {
+  "name": "NNJ patched",
+  "noise": 0.0,
+  "seed": 0,
+  "comp": 80.955,
+  "true": 80.8763,
+  "nit": 343,
+  "msg": "`gtol`",
+  "seconds": 2353.0524
+ },
+ {
+  "name": "NNJ published",
+  "noise": 0.0,
+  "seed": 0,
+  "comp": 80.8523,
+  "true": 80.7733,
+  "nit": 291,
+  "msg": "`gtol`",
+  "seconds": 2392.3348
+ },
+ {
+  "name": "CFD patched",
+  "noise": 1e-10,
+  "seed": 1,
+  "comp": 80.8534,
+  "true": 80.7745,
+  "nit": 272,
+  "msg": "`gtol`",
+  "seconds": 2035.8616
+ },
+ {
+  "name": "CFD published",
+  "noise": 1e-10,
+  "seed": 1,
+  "comp": 80.8815,
+  "true": 80.8028,
+  "nit": 294,
+  "msg": "`xtol`",
+  "seconds": 2219.1881
+ },
+ {
+  "name": "CFD published",
+  "noise": 1e-10,
+  "seed": 2,
+  "comp": 82.2403,
+  "true": 82.1626,
+  "nit": 220,
+  "msg": "`xtol`",
+  "seconds": 1408.8799
+ },
+ {
+  "name": "NNJ patched",
+  "noise": 1e-10,
+  "seed": 1,
+  "comp": 80.8664,
+  "true": 80.7875,
+  "nit": 264,
+  "msg": "`gtol`",
+  "seconds": 1913.2847
+ },
+ {
+  "name": "CFD patched",
+  "noise": 1e-10,
+  "seed": 2,
+  "comp": 82.1379,
+  "true": 82.0607,
+  "nit": 275,
+  "msg": "`xtol`",
+  "seconds": 1593.0955
+ },
+ {
+  "name": "NNJ patched",
+  "noise": 1e-10,
+  "seed": 2,
+  "comp": 80.8951,
+  "true": 80.8163,
+  "nit": 305,
+  "msg": "`gtol`",
+  "seconds": 1967.1321
+ }
+]

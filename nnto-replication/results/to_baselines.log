@@ -1,0 +1,11 @@
+[1/7] reference                                                  s0: true 78.853 model 78.853 (+0.00 %) nit 1554 conv True 23s [23s]
+[2/7] reference                                                  s1: true 78.853 model 78.853 (+0.00 %) nit 1428 conv True 22s [45s]
+resuming: 2 runs already done, 5 to go
+[1/5] reference                                                  s2: true 78.853 model 78.853 (+0.00 %) nit 1466 conv True 37s [37s]
+[2/5] reference                                                  s3: true 78.853 model 78.853 (+0.00 %) nit 1471 conv True 36s [73s]
+[3/5] published                                                  s0: true 81.951 model 77.879 (-4.97 %) nit 3000 conv False 85s [157s]
+[4/5] published                                                  s1: true 81.878 model 77.652 (-5.16 %) nit 3000 conv False 84s [242s]
+[5/5] published                                                  s2: true 82.048 model 77.890 (-5.07 %) nit 3000 conv False 87s [328s]
+summary (true compliance, mean ± 95% CI over trained seeds):
+  reference                                                  n=4 true 78.853 ± 0.000  model error +0.00 %
+  published                                                  n=3 true 81.959 ± 0.213  model error -5.07 %

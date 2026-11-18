@@ -1,0 +1,7 @@
+[1/4] Fourier + 2x64 tanh | converged + Sobolev                  s1: true 78.833 model 78.808 (-0.03 %) nit 1198 conv True 94s [94s]
+[2/4] Fourier + 2x64 tanh | converged + Sobolev                  s0: true 78.833 model 78.832 (-0.00 %) nit 1378 conv True 108s [108s]
+[3/4] ResNet 4x64 swish | converged + Sobolev                    s0: true 78.845 model 78.886 (+0.05 %) nit 1267 conv True 337s [431s]
+[4/4] ResNet 4x64 swish | converged + Sobolev                    s1: true 78.848 model 78.802 (-0.06 %) nit 1657 conv True 439s [547s]
+summary (true compliance, mean ± 95% CI over runs; model error = surrogate's own compliance vs truth):
+  Fourier + 2x64 tanh | converged + Sobolev                  n=2 true 78.833 ± 0.001  model error: mean -0.02 %, mean |.| 0.02 %, max |.| 0.03 %  volume 0.50000-0.50000  true at target volume 78.833
+  ResNet 4x64 swish | converged + Sobolev                    n=2 true 78.847 ± 0.022  model error: mean -0.00 %, mean |.| 0.06 %, max |.| 0.06 %  volume 0.50000-0.50000  true at target volume 78.847

@@ -1,0 +1,29 @@
+Authors' published HBTO designs (compliance; % vs the value reported in the paper)
+  NNJ  reported 75.70 | voxel 82.16 (+8.5%) | converged, sides<0.01 as slits 82.65 (+9.2%) | converged, sides<0.01 solid 82.11 (+8.5%) | cells with a side<0.01 31.4% | volume 0.50000
+  CFD  reported 76.78 | voxel 84.25 (+9.7%) | converged, sides<0.01 as slits 84.72 (+10.3%) | converged, sides<0.01 solid 84.21 (+9.7%) | cells with a side<0.01 32.3% | volume 0.50000
+  CSM  reported 76.14 | voxel 82.59 (+8.5%) | converged, sides<0.01 as slits 83.16 (+9.2%) | converged, sides<0.01 solid 82.59 (+8.5%) | cells with a side<0.01 30.9% | volume 0.50000
+  AD   reported 75.70 | voxel 82.36 (+8.8%) | converged, sides<0.01 as slits 82.80 (+9.4%) | converged, sides<0.01 solid 82.32 (+8.7%) | cells with a side<0.01 29.7% | volume 0.50000
+
+MMA runs: 31 re-scored; largest difference to the stored true compliance 0.0e+00
+surrogate                                                   n             true  at target vol.     err  |err|    max  conv            volume
+reference                                                   4   78.853 ± 0.000          78.853  +0.00%  0.00%  0.00%  4/4  0.50000-0.50000
+published                                                   3   81.959 ± 0.213          81.869  -5.07%  5.07%  5.16%  0/3  0.49850-0.49995
+Deep MLP 3x64 tanh | converged + Sobolev                    3   78.876 ± 0.154          78.876  -0.02%  0.04%  0.08%  3/3  0.50000-0.50000
+MLP 1x64 sigmoid (paper) | converged + Sobolev              3   79.305 ± 0.239          79.305  -0.00%  0.19%  0.29%  3/3  0.50000-0.50000
+Deep MLP 3x64 tanh | paper data                             3   79.240 ± 0.493          79.237  -0.13%  0.13%  0.28%  0/3  0.49992-0.50000
+Deep MLP 3x64 tanh | converged, values only                 3   78.862 ± 0.118          78.862  -0.22%  0.22%  0.29%  0/3  0.50000-0.50000
+Fourier + 2x64 tanh | converged + Sobolev                   2   78.833 ± 0.001          78.833  -0.02%  0.02%  0.03%  2/2  0.50000-0.50000
+ResNet 4x64 swish | converged + Sobolev                     2   78.847 ± 0.022          78.847  -0.00%  0.06%  0.06%  2/2  0.50000-0.50000
+SIREN 3x64 | converged + Sobolev                            2   78.865 ± 0.386          78.865  -0.03%  0.03%  0.04%  2/2  0.50000-0.50000
+KAN 2-16-16-4 | converged + Sobolev                         2   78.844 ± 0.076          78.844  -0.07%  0.09%  0.16%  2/2  0.50000-0.50000
+Deep MLP 3x64 tanh | converged + Sobolev + Cholesky         2   78.850 ± 0.069          78.850  -0.31%  0.31%  0.43%  2/2  0.50000-0.50000
+KAN 2-16-16-4 | converged + Sobolev + Cholesky              2   78.954 ± 1.254          78.954  -0.45%  0.45%  0.52%  2/2  0.50000-0.50000
+
+Headline (improved = deep 3x64 tanh MLP, converged data + derivative labels):
+  true                  : published 81.959 vs improved 78.876; 3.76% lower (3.67% vs the on-target run); gap 3.083, 95% CI 2.91-3.26, Welch p 2.5e-06; vs reference +0.119%, -0.023%, -0.010%
+  true_at_target_volume : published 81.869 vs improved 78.876; 3.66% lower (3.66% vs the on-target run); gap 2.993, 95% CI 2.86-3.12, Welch p 6.5e-06; vs reference +0.119%, -0.023%, -0.010%
+  vs authors' best design (voxel): 82.157 -> 3.99% lower (all four designs: 6.38-3.99%)
+  vs authors' best design (converged_slit): 82.645 -> 4.56% lower (all four designs: 6.89-4.56%)
+  vs authors' best design (converged_solid): 82.111 -> 3.94% lower (all four designs: 6.33-3.94%)
+  model error: authors' NNJ design voxel -7.86%, converged_slit -8.41%, converged_solid -7.81%; improved mean -0.017%, mean |.| 0.035%, max |.| 0.079%; ratio 99-238x
+  share of the published -> reference gap closed: {'reference': 100.0, 'published': 0.0, 'Deep MLP 3x64 tanh | converged + Sobolev': 99.3, 'MLP 1x64 sigmoid (paper) | converged + Sobolev': 85.4, 'Deep MLP 3x64 tanh | paper data': 87.5, 'Deep MLP 3x64 tanh | converged, values only': 99.7, 'Fourier + 2x64 tanh | converged + Sobolev': 100.6, 'ResNet 4x64 swish | converged + Sobolev': 100.2, 'SIREN 3x64 | converged + Sobolev': 99.6, 'KAN 2-16-16-4 | converged + Sobolev': 100.3, 'Deep MLP 3x64 tanh | converged + Sobolev + Cholesky': 100.1, 'KAN 2-16-16-4 | converged + Sobolev + Cholesky': 96.7}

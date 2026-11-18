@@ -1,0 +1,7 @@
+[1/4] Deep MLP 3x64 tanh | converged + Sobolev + Cholesky        s0: true 78.845 model 78.699 (-0.19 %) nit 1541 conv True 172s [172s]
+[2/4] Deep MLP 3x64 tanh | converged + Sobolev + Cholesky        s1: true 78.856 model 78.513 (-0.43 %) nit 1823 conv True 202s [202s]
+[3/4] KAN 2-16-16-4 | converged + Sobolev + Cholesky             s0: true 79.053 model 78.753 (-0.38 %) nit 892 conv True 38s [210s]
+[4/4] KAN 2-16-16-4 | converged + Sobolev + Cholesky             s1: true 78.856 model 78.446 (-0.52 %) nit 1421 conv True 60s [262s]
+summary (true compliance, mean ± 95% CI over runs; model error = surrogate's own compliance vs truth):
+  Deep MLP 3x64 tanh | converged + Sobolev + Cholesky        n=2 true 78.850 ± 0.069  model error: mean -0.31 %, mean |.| 0.31 %, max |.| 0.43 %  volume 0.50000-0.50000  true at target volume 78.850
+  KAN 2-16-16-4 | converged + Sobolev + Cholesky             n=2 true 78.954 ± 1.254  model error: mean -0.45 %, mean |.| 0.45 %, max |.| 0.52 %  volume 0.50000-0.50000  true at target volume 78.954
